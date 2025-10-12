@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Spin : MonoBehaviour
+public class Week1Spin : MonoBehaviour
 {
     public float ySpeed;
     public float yAcceleration;
