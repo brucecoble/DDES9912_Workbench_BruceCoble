@@ -24,6 +24,7 @@ public class ButtonManager : MonoBehaviour
     public string action = "Undefined";
     public int finalValue = 0;
     public string finalAction = "Inactive";
+    public bool finalPressedValue = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -72,6 +73,8 @@ public class ButtonManager : MonoBehaviour
             finalValue = buttonValue;
             // Set the action value of the button to be the value specified in the object's inspector window
             finalAction = action;
+            // Set the final Button Pressed value to be the value specified in the object's inspector window
+            finalPressedValue = buttonPressed;
 
         } else
         {
@@ -85,7 +88,8 @@ public class ButtonManager : MonoBehaviour
             finalValue = 0;
             // Set the action value of the button to be not active
             finalAction = "Inactive";
-
+            // Set the final Button Pressed value to be the value specified in the object's inspector window
+            finalPressedValue = buttonPressed;
         }
         
     }
