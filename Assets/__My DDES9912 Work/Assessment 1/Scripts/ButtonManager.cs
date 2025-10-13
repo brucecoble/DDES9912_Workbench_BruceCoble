@@ -38,10 +38,10 @@ public class ButtonManager : MonoBehaviour
         // Get the local X position of the button
         localPositionZ = transform.localPosition.z;
         // Print the value to the console
-        Debug.Log("Local Position: X: " + localPositionX + " Y: " + localPositionY + " Z: " + localPositionZ);
+        //Debug.Log("Local Position: X: " + localPositionX + " Y: " + localPositionY + " Z: " + localPositionZ);
         //Get the button action value based on the value specified in the object's inspector window
         action = setButtonActionValue();
-        Debug.Log("pressed action is: " + action);
+        //Debug.Log("pressed action is: " + action);
     }
 
     private string setButtonActionValue()
