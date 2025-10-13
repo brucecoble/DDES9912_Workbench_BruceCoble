@@ -11,7 +11,7 @@ public class HelloCube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("The update log");
+        // Debug.Log("The update log");
     }
 
     private void OnCollisionEnter(Collision collision)

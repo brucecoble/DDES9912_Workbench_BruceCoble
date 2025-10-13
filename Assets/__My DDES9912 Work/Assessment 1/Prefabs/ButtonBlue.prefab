@@ -27,7 +27,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2010646169978456014}
   m_LocalRotation: {x: -0, y: 0.6740664, z: -0.7386708, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: -0.518683}
+  m_LocalPosition: {x: 0, y: 0, z: -0.5111}
   m_LocalScale: {x: 0.1957282, y: 0.19572823, z: 0.19572826}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36,8 +36,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 5.237, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.0052700005, y: 0.0023475855}
-  m_SizeDelta: {x: 2, y: 2}
+  m_AnchoredPosition: {x: 0.001, y: 0.003}
+  m_SizeDelta: {x: 0.4313, y: 0.3892}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &4320200756460675509
 Canvas:
@@ -388,7 +388,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7776671516463471468}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.00000031761}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -396,8 +396,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.40861985}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.024399973, y: 0.0634}
-  m_SizeDelta: {x: 0.4546, y: 0.2292}
+  m_AnchoredPosition: {x: 0.0096, y: 0.069799945}
+  m_SizeDelta: {x: 0.4841, y: 0.242}
   m_Pivot: {x: 0.49999988, y: 0.5000008}
 --- !u!222 &4256324050155443033
 CanvasRenderer:
@@ -492,7 +492,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.03608063, y: 0.021276154, z: 0.044974014, w: 0.021899015}
+  m_margin: {x: 0.006387055, y: 0.000047452668, z: 0.01234661, w: -0.07110001}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -507,6 +507,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5945744477478810241}
+  - component: {fileID: 3285342316583106353}
   m_Layer: 0
   m_Name: ButtonBlue
   m_TagString: Untagged
@@ -532,6 +533,29 @@ Transform:
   - {fileID: 4794951032150066149}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3285342316583106353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7877932201082118054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf22bd9576576f4c8cb39821999828b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonManager
+  buttonValue: 0
+  isActionNumber: 0
+  isActionTotal: 0
+  isActionSubtotal: 0
+  isActionNonadd: 0
+  isActionQtr: 0
+  isActionHalf: 0
+  isAction3Qtr: 0
+  action: Undefined
+  finalValue: 0
+  finalAction: Inactive
 --- !u!1 &8301178788842725043
 GameObject:
   m_ObjectHideFlags: 0
@@ -721,7 +745,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onPrimaryInteract:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3285342316583106353}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: PressButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onSecondaryInteract:
     m_PersistentCalls:
       m_Calls: []
