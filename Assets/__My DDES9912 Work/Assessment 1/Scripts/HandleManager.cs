@@ -2,18 +2,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Windows;
+using TMPro;
 
 public class HandleManager : MonoBehaviour
 {
     private string action;
 
-    public string targetActionVariableName = "finalAction"; // Name of the Action variable to check (this will be like "Total", etc)
-    public string targetActionValue = "Total"; // Value to match
-    public string targetPressedVariableName = "finalPressedValue"; // Name of the Pressed Value variable to check (this will be true or false)
-    public string targetPressedValue = "true"; // Value to match
+    //public string targetActionVariableName = "finalAction"; // Name of the Action variable to check (this will be like "Total", etc)
+    //public string targetActionValue = "Total"; // Value to match
+    //public string targetPressedVariableName = "finalPressedValue"; // Name of the Pressed Value variable to check (this will be true or false)
+    //public string targetPressedValue = "true"; // Value to match
     private GameObject[] taggedActionBtnObjects;
     private GameObject[] taggedNumberBtnObjects;
     private float sessionTotal; // Used to hold the sum of the value of all pressed buttons
+    public TextMeshPro displayTotalAmount;
+    private string totalString; // The value used to pass a string of a number to functions for display
+
+    public List<ButtonManager> changedButtons; // A list of buttons that have been pressed to use for resetting values after PullHandle() has been run
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -74,21 +81,36 @@ public class HandleManager : MonoBehaviour
     private float GetSessionTotal()
     {
 
+        // Initialise value
+        sessionTotal = 0.00f;
+
+        // Loop through each GameObject that is tagged as a number button so we can get the value assigned to each button
         foreach (GameObject go in taggedNumberBtnObjects)
         {
-            // Initialise value
-            sessionTotal = 0.00f;
 
-            // Get the script component that contains the variables
+            // Get the script component that contains the value variables for each GameObject
             ButtonManager script = go.GetComponent<ButtonManager>();
 
             if (script != null)
             {
-                // If the button was pressed, add the button's value to the running session total
-                if (script.finalPressedValue == true) { sessionTotal += script.finalValue; }
+                //UnityEngine.Debug.Log("In GetSessionTotal(), " + go.name + " - script.finalPressedValue returned: " + script.finalPressedValue);
+
+                // If the button was pressed:  
+                if (script.finalPressedValue) {
+
+                    // Add the button's value to the running session total
+                    UnityEngine.Debug.Log("In GetSessionTotal(), " + go.name + " - script.finalValue returned: " + script.finalValue);
+                    sessionTotal += script.finalValue;
+
+                    // and save the names of the GameObjects for later when we want to reset the button for the next round
+                    changedButtons.Add(script);
+
+                }
             }
         }
-        UnityEngine.Debug.Log("GetSessionTotal returned" + sessionTotal.ToString());
+
+        UnityEngine.Debug.Log("Finally, GetSessionTotal() returned sessionTotal=" + sessionTotal.ToString());
+
         return sessionTotal;
 
     }
@@ -96,6 +118,9 @@ public class HandleManager : MonoBehaviour
     public void PullHandle()
     {
         UnityEngine.Debug.Log("Starting PullHandle: Oh luck be my lady tonight, sings Frank Sinatra...");
+
+        // Initialise variable value each time the function is called
+        sessionTotal = 0;
 
         //Get session running total for the number buttons that have been pressed
         sessionTotal = GetSessionTotal();
@@ -146,6 +171,32 @@ public class HandleManager : MonoBehaviour
 
     }
 
+    /*
+     * Set of actions to carry out when the handle has been released.
+     */
+    public void ReleaseHandle()
+    {
+        // Reset the values of variables for each button GameObject that has been pressed so it can be pressed again
+        foreach (ButtonManager script in changedButtons)
+        {
+            //UnityEngine.Debug.Log("In ReleaseHandle(), script.finalValue returned: " + script.finalValue);
+
+            UnityEngine.Debug.Log("Resetting button " + script + " to original position");
+
+            // Move button back up to original not-pressed position
+            script.transform.localPosition = new Vector3(script.localPositionX, script.localPositionY, script.localPositionZ);
+            // Change state of button back to not-pressed
+            script.buttonPressed = false;
+            // Set the numerical value of the button to be the value to zero
+            script.finalValue = 0;
+            // Set the action value of the button to be not active
+            script.finalAction = "Inactive";
+            // Set the final Button Pressed value to be the value specified in the object's inspector window
+            script.finalPressedValue = script.buttonPressed;
+
+        }
+    }
+
     private void DoActionTotal()
     {
         UnityEngine.Debug.Log("Start DoActionTotal");
@@ -184,7 +235,11 @@ public class HandleManager : MonoBehaviour
     }
     private void DoActionNumber()
     {
-        UnityEngine.Debug.Log("Start DoActionNumber");
+        UnityEngine.Debug.Log("Start DoActionNumber using sessionTotal: " + sessionTotal.ToString());
+        totalString = sessionTotal.ToString();
+
+        displayTotalAmount.text = totalString;
+
         return;
     }
 

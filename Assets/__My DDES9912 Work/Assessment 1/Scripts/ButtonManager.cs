@@ -5,10 +5,10 @@ public class ButtonManager : MonoBehaviour
 {
 
     // Script Variables
-    float localPositionX;
-    float localPositionY;
-    float localPositionZ;
-    bool buttonPressed = false;
+    public float localPositionX;
+    public float localPositionY;
+    public float localPositionZ;
+    public bool buttonPressed = false;
     float moveDistance = 0.04f;
 
     // Public Variables
