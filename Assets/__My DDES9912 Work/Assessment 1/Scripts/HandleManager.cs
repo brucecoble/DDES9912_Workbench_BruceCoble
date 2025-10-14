@@ -17,8 +17,18 @@ public class HandleManager : MonoBehaviour
     private GameObject[] taggedActionBtnObjects;
     private GameObject[] taggedNumberBtnObjects;
     private float sessionTotal; // Used to hold the sum of the value of all pressed buttons
-    public TextMeshPro displayTotalAmount;
     private string totalString; // The value used to pass a string of a number to functions for display
+
+    // Variables to use for displaying totals values
+    public TextMeshPro displayTotalAmount;
+    public TextMeshPro displayTotalAmount_Col1; // 1000000
+    public TextMeshPro displayTotalAmount_Col2; // 100000 
+    public TextMeshPro displayTotalAmount_Col3; // 10000
+    public TextMeshPro displayTotalAmount_Col4; // 1000
+    public TextMeshPro displayTotalAmount_Col5; // 100
+    public TextMeshPro displayTotalAmount_Col6; // 10
+    public TextMeshPro displayTotalAmount_Col7; // 1
+    public TextMeshPro displayTotalAmount_Col_Fract; // 1/4 1/2 3/4
 
     public List<ButtonManager> changedButtons; // A list of buttons that have been pressed to use for resetting values after PullHandle() has been run
 
@@ -236,9 +246,50 @@ public class HandleManager : MonoBehaviour
     private void DoActionNumber()
     {
         UnityEngine.Debug.Log("Start DoActionNumber using sessionTotal: " + sessionTotal.ToString());
-        totalString = sessionTotal.ToString();
 
-        displayTotalAmount.text = totalString;
+
+        // Only update total displays if there is a value to display. 
+        if (sessionTotal > 0)
+        {
+
+            // Convert the number to a string
+            totalString = sessionTotal.ToString(); ;
+
+            // Assign value to top number display
+            displayTotalAmount.text = totalString;
+
+
+            // Display on front individual number display
+            // Pad with zeros on the left to avoid out of bounds issues below
+            totalString = totalString.PadLeft(7, '0');
+
+            char num1 = totalString[0];// 1000000 
+            char num2 = totalString[1];// 100000 
+            char num3 = totalString[2];// 10000 
+            char num4 = totalString[3];// 1000 
+            char num5 = totalString[4];// 100 
+            char num6 = totalString[5];// 10 
+            char num7 = totalString[6];// 1 
+
+            if (num1 != '\0') { displayTotalAmount_Col1.text = num1.ToString(); } else { displayTotalAmount_Col1.text = "0"; }
+            ; // 1000000
+            if (num2 != '\0') { displayTotalAmount_Col2.text = num2.ToString(); } else { displayTotalAmount_Col2.text = "0"; }
+            ; // 100000
+            if (num3 != '\0') { displayTotalAmount_Col3.text = num3.ToString(); } else { displayTotalAmount_Col3.text = "0"; }
+            ; // 10000
+            if (num4 != '\0') { displayTotalAmount_Col4.text = num4.ToString(); } else { displayTotalAmount_Col4.text = "0"; }
+            ; // 1000
+            if (num5 != '\0') { displayTotalAmount_Col5.text = num5.ToString(); } else { displayTotalAmount_Col5.text = "0"; }
+            ; // 100
+            if (num6 != '\0') { displayTotalAmount_Col6.text = num6.ToString(); } else { displayTotalAmount_Col6.text = "0"; }
+            ; // 10
+            if (num7 != '\0') { displayTotalAmount_Col7.text = num7.ToString(); } else { displayTotalAmount_Col7.text = "0"; }
+            ; // 1
+
+            // Need to work out how to deal with fractions
+            displayTotalAmount_Col_Fract.text = "-"; // 1/4 1/2 3/4
+            
+        }
 
         return;
     }
