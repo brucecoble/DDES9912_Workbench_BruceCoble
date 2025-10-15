@@ -1232,6 +1232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8cdc6cb5597eb418808352273bf401, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  runningTotal: 0
   displayTotalAmount: {fileID: 425424821}
   displayTotalAmount_Col1: {fileID: 1842380072}
   displayTotalAmount_Col2: {fileID: 785103027}
@@ -2236,17 +2237,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 425424819}
-  m_LocalRotation: {x: -0, y: 0.81147873, z: -0.58438194, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: -128.14}
-  m_LocalScale: {x: 0.44315, y: 1.0622306, z: 0.44315}
+  m_LocalRotation: {x: -0, y: 0.97773004, z: -0.20986688, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -130.64891}
+  m_LocalScale: {x: 0.44314998, y: 0.2769919, z: 1.4375063}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 295532065}
-  m_LocalEulerAnglesHint: {x: 71.519, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 7.654, y: 180, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.99, y: -0.31081}
-  m_SizeDelta: {x: 20, y: 5}
+  m_AnchoredPosition: {x: -1.0867605, y: 0.44650635}
+  m_SizeDelta: {x: 20.4366, y: 12.0211}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &425424821
 MonoBehaviour:
@@ -2303,7 +2304,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

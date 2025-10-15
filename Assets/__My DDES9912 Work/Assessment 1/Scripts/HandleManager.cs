@@ -17,6 +17,7 @@ public class HandleManager : MonoBehaviour
     private GameObject[] taggedActionBtnObjects;
     private GameObject[] taggedNumberBtnObjects;
     private float sessionTotal; // Used to hold the sum of the value of all pressed buttons
+    public float runningTotal; // USed to hold the running total of all values added.
     private string totalString; // The value used to pass a string of a number to functions for display
 
     // Variables to use for displaying totals values
@@ -30,7 +31,9 @@ public class HandleManager : MonoBehaviour
     public TextMeshPro displayTotalAmount_Col7; // 1
     public TextMeshPro displayTotalAmount_Col_Fract; // 1/4 1/2 3/4
 
+
     public List<ButtonManager> changedButtons; // A list of buttons that have been pressed to use for resetting values after PullHandle() has been run
+    public List<float> valuesEntered; // A list of values that have been entered by the user
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -78,6 +81,27 @@ public class HandleManager : MonoBehaviour
         }
         UnityEngine.Debug.Log("GetActionValue returned: " + action);
         return action;
+
+    }
+
+    private float UpdateRunningTotal(float sessionTotal, float runningTotal, string action)
+    {
+
+        UnityEngine.Debug.Log("updateRunningTotal start.............................");
+        UnityEngine.Debug.Log("action = " + action + ", sessionTotal = " + sessionTotal.ToString() + ", runningTotal = " + runningTotal.ToString());
+
+
+        if (action is null)
+        {
+            UnityEngine.Debug.Log("action is null so adding sessionTotal of " + sessionTotal.ToString() + " runningTotal of: " + runningTotal.ToString());
+            runningTotal += sessionTotal;
+            UnityEngine.Debug.Log("RunningTotal is now: " + runningTotal.ToString());
+
+            return runningTotal;
+        }
+
+        UnityEngine.Debug.Log("updateRunningTotal - nothing to change.............................");
+        return runningTotal;
 
     }
 
@@ -136,6 +160,9 @@ public class HandleManager : MonoBehaviour
         sessionTotal = GetSessionTotal();
         UnityEngine.Debug.Log("In PullHandle, GetSessionTotal returned: " + sessionTotal.ToString());
 
+        // Add value to public list of entered values in HandleManager - we can total these later
+        valuesEntered.Add(sessionTotal);
+
         // Now get the action buttons that have been pressed
         action = GetActionValue();
         UnityEngine.Debug.Log("In PullHandle, GetActionValue returned: " + action);
@@ -173,8 +200,13 @@ public class HandleManager : MonoBehaviour
 
             } else {
 
-                DoActionNumber();
-                
+                // Where do we store/get running total from? Do we put this in a game object?
+                UnityEngine.Debug.Log("In PullHandle, doing ELSE action...");
+                //DoActionNumber();
+
+                runningTotal = UpdateRunningTotal(sessionTotal, runningTotal, "");
+                DisplayResult(sessionTotal, runningTotal);
+
             }
 
         }
@@ -245,6 +277,19 @@ public class HandleManager : MonoBehaviour
     }
     private void DoActionNumber()
     {
+        UnityEngine.Debug.Log("Start DoActionNumber");
+        //DisplayResult();
+
+        return;
+
+    }
+
+
+    /*
+     * Create result for display on display GameObjects
+     */
+    private void DisplayResult(float sessionTotal, float runningTotal)
+    {
         UnityEngine.Debug.Log("Start DoActionNumber using sessionTotal: " + sessionTotal.ToString());
 
 
@@ -288,7 +333,7 @@ public class HandleManager : MonoBehaviour
 
             // Need to work out how to deal with fractions
             displayTotalAmount_Col_Fract.text = "-"; // 1/4 1/2 3/4
-            
+
         }
 
         return;
