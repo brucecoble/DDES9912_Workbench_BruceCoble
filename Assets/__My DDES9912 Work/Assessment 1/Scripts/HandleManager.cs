@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Windows;
 using TMPro;
+using System.Linq;
 
 public class HandleManager : MonoBehaviour
 {
@@ -18,8 +19,9 @@ public class HandleManager : MonoBehaviour
     private string frontTotalString; // The value used to pass a string of a number for display in the front total window
     private string runningTotalString; // The value of the running total converted to a string
 
-    // Variables to use for displaying running totals values in the front display
+    // Variables to use for displaying running totals values in the front display assigned on HandleRig GameObject
     public TextMeshPro displayTotalAmount;
+    public TextMeshPro displayPaperPrintout;
     public TextMeshPro displayTotalAmount_Col1; // 1000000 column
     public TextMeshPro displayTotalAmount_Col2; // 100000 column
     public TextMeshPro displayTotalAmount_Col3; // 10000 column
@@ -34,7 +36,17 @@ public class HandleManager : MonoBehaviour
 
     // A list of values that have been entered by the user. This is used to record each individual float entered by the user,
     // to allow a list to be displayed at the top and a running total to be calculated.
-    public List<float> valuesEntered; 
+    public List<float> valuesEntered;
+
+    // A string of all the values entered to be used for the top display (i.e. the paper printout)
+    public string paperPrintoutString;
+    public List<string> paperPrintoutValues; // Try a list
+
+    // Also create a new object to avoid a multithreading error generated while looping through & adding to the valueEntered list
+    private readonly object listlock = new object();
+
+    // Also create a new object to avoid a multithreading error generated while looping through & adding to the paperPrintoutValues list
+    private readonly object listlock2 = new object();
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -47,6 +59,10 @@ public class HandleManager : MonoBehaviour
 
         // Find all GameObjects with an ActionBtn tag
         taggedNumberBtnObjects = GameObject.FindGameObjectsWithTag("NumberBtn");
+
+        // Initialise values that we will add to as the user interacts with the GameObjects
+        //valuesEntered = null;
+        //paperPrintoutString = "";
 
     }
 
@@ -139,38 +155,79 @@ public class HandleManager : MonoBehaviour
     private float UpdateRunningTotal(List<float> valuesEntered, string action)
     {
 
-        UnityEngine.Debug.Log("updateRunningTotal start.............................");
+        UnityEngine.Debug.Log("updateRunningTotal() start.............................");
         string listString = string.Join(", ", valuesEntered);
 
         //UnityEngine.Debug.Log("action = " + action + ", buttonsTotal = " + buttonsTotal.ToString() + ", runningTotal = " + runningTotal.ToString());
-        UnityEngine.Debug.Log("action = " + action + ", valuesEntered of " + listString);
+        UnityEngine.Debug.Log("UpdateRunningTotal() - action = " + action + ", valuesEntered of " + listString);
 
         // Initialise variable
         runningTotal = 0.00f;
 
-        if (action is null)
+        if (action == "Number")
         {
 
-            /*
-            UnityEngine.Debug.Log("action is null so adding buttonsTotal of " + buttonsTotal.ToString() + " runningTotal of: " + runningTotal.ToString());
-            runningTotal += buttonsTotal;
-            UnityEngine.Debug.Log("RunningTotal is now: " + runningTotal.ToString());
-            */
-            UnityEngine.Debug.Log("action is null so adding valuesEntered of " + listString);
+            UnityEngine.Debug.Log("UpdateRunningTotal() - action is Number so adding valuesEntered of " + listString);
 
             foreach (float value in valuesEntered)
             {
                 runningTotal += value;
             }
 
-
+            UnityEngine.Debug.Log("updateRunningTotal() - action==Number returned: " + runningTotal.ToString() );
             return runningTotal;
+
         }
 
-        UnityEngine.Debug.Log("updateRunningTotal - nothing to change.............................");
+        UnityEngine.Debug.Log("updateRunningTotal() - nothing to change.............................");
         return runningTotal;
 
     }
+
+
+    /*
+     * Users enter a number & pull the handle to finalise the number entry. The buttons then reset, allowing the user to enter a new number.
+     * This function adds each number to the previous total to create a new total
+     * 
+     */
+    private string FormatPaperPrintout(List<string> paperPrintoutValues, string action)
+    {
+
+        UnityEngine.Debug.Log("FormatPaperPrintout() start.............................");
+        string listString = string.Join(", ", paperPrintoutValues);
+
+        //UnityEngine.Debug.Log("action = " + action + ", buttonsTotal = " + buttonsTotal.ToString() + ", runningTotal = " + runningTotal.ToString());
+        UnityEngine.Debug.Log("FormatPaperPrintout() - action = " + action + ", valuesEntered of " + listString);
+
+        // Initialise variable
+        paperPrintoutString = "";
+
+        if (action == "Number")
+        {
+
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action is Number so adding valuesEntered of " + listString);
+
+            //paperPrintoutValues = string.Join("\n", paperPrintoutValues);
+            
+            foreach (string value in paperPrintoutValues)
+            {
+                paperPrintoutString += value + '\n';
+            }
+            
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Number returned: " + paperPrintoutString );
+
+            return paperPrintoutString;
+
+        }
+
+        UnityEngine.Debug.Log("FormatPaperPrintout() - nothing to change.............................");
+
+        return paperPrintoutString;
+
+    }
+
+
+    
 
     /*
      * 
@@ -181,14 +238,31 @@ public class HandleManager : MonoBehaviour
         UnityEngine.Debug.Log("Starting PullHandle: Oh luck be my lady tonight, sings Frank Sinatra...");
 
         // Initialise variable value each time the function is called
-        //buttonsTotal = 0;
+        buttonsTotal = 0;
 
         //Get total for the number buttons that have been pressed for this specific number entry.
         buttonsTotal = GetButtonsTotal();
         UnityEngine.Debug.Log("In PullHandle, GetSessionTotal returned: " + buttonsTotal.ToString());
 
-        // Add value to public list of entered values in HandleManager - we can total these later
-        valuesEntered.Add(buttonsTotal);
+        // Safely add value to public list of entered float values in HandleManager (avoiding multithreading error)
+        lock (listlock)
+        {
+            valuesEntered.Add(buttonsTotal);
+        }        
+        
+        // Safely add value to public list of entered string values in HandleManager (avoiding multithreading error)
+        
+        lock (listlock2)
+        {
+            paperPrintoutValues.Add(buttonsTotal.ToString());
+        }
+
+
+        // Add buttons total to our paper printout display string
+        //string newString = buttonsTotal.ToString();
+        //UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
+        //paperPrintoutString += string.Join("\n\r\n\r", newString);
+        //UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
 
         // Now get the action buttons that have been pressed
         action = GetActionValue();
@@ -199,13 +273,24 @@ public class HandleManager : MonoBehaviour
             // Do actions
             if (action == "Total") {
 
+                // This prints the total at the bottom of the top display in red with a "T" next to it
+                // and resets the front display to zero (you would normally rip the printed paper off 
+                // from the top typewriter display section & start a new addition task).
+
                 DoActionTotal();
                 
             } else if (action == "SubTotal") {
 
+                // This prints the subtotal value at the bottom of the top display in red with a "T" next to it
+                // and resets the front display to zero (you would normally rip the printed paper off 
+                // from the top typewriter display section & start a new addition task).
+
                 DoActionSubTotal();
 
             } else if (action == "NonAdd") {
+
+                // This prints the number at the bottom of the top display in black with an "N" next to it,
+                // but does not add it to the running total at the front
 
                 DoActionNonAdd(); 
 
@@ -223,17 +308,28 @@ public class HandleManager : MonoBehaviour
 
             } else if (action == "Repeat") {
 
+                // This keeps the Repeat button and any pressed number buttons remaining pressed until the
+                // Repeat button is unpressed. This allows the user to keep pulling the handle and adding
+                // the same number
+
                 DoActionRepeat(); 
 
-            } else {
+            } else if (action == "Number") {
 
                 // Where do we store/get running total from? Do we put this in a game object?
-                UnityEngine.Debug.Log("In PullHandle, doing ELSE action...");
+                UnityEngine.Debug.Log("In PullHandle, doing Number action...");
                 //DoActionNumber();
 
                 //runningTotal = UpdateRunningTotal(buttonsTotal, runningTotal, "");
-                runningTotal = UpdateRunningTotal(valuesEntered, "");
-                DisplayResult(buttonsTotal, runningTotal);
+                runningTotal = UpdateRunningTotal(valuesEntered, "Number");
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
+                paperPrintoutString = FormatPaperPrintout(paperPrintoutValues, "Number");
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
+                DisplayResult(buttonsTotal, runningTotal, paperPrintoutString);
+
+            } else {
+
+                UnityEngine.Debug.Log("In PullHandle actions section, doing ELSE...");
 
             }
 
@@ -267,6 +363,7 @@ public class HandleManager : MonoBehaviour
         }
     }
 
+    
     private void DoActionTotal()
     {
         UnityEngine.Debug.Log("Start DoActionTotal");
@@ -311,7 +408,7 @@ public class HandleManager : MonoBehaviour
         return;
 
     }
-
+    
 
     /*
      * Create result for display on display GameObjects
@@ -319,12 +416,12 @@ public class HandleManager : MonoBehaviour
      * This updates the value of the public Text Mesh Pro variables declared at the top of this script & 
      * that have been assigned a GameObject via the inspector
      */
-    private void DisplayResult(float buttonsTotal, float runningTotal)
+    private void DisplayResult(float buttonsTotal, float runningTotal, string paperPrintoutString)
     {
-        UnityEngine.Debug.Log("Start DoActionNumber using buttonsTotal: " + buttonsTotal.ToString());
+        UnityEngine.Debug.Log("Start DisplayResult() using buttonsTotal: " + buttonsTotal.ToString() + ", runningTotal: " + runningTotal.ToString());
+        UnityEngine.Debug.Log("Start DisplayResult() using paperPrintoutString: " + paperPrintoutString);
 
-
-        // Only update total displays if there is a value to display. 
+                // Only update total displays if there is a value to display. 
         if (buttonsTotal > 0)
         {
 
@@ -335,7 +432,10 @@ public class HandleManager : MonoBehaviour
             runningTotalString = runningTotal.ToString();
 
             // Assign value to top number display
-            displayTotalAmount.text = totalString;
+            displayTotalAmount.text = totalString;  
+
+            // Assign value to top paper printout display
+            displayPaperPrintout.text = paperPrintoutString;
 
 
             // Display on front individual number display
