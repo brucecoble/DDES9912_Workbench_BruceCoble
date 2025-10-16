@@ -10,30 +10,31 @@ public class HandleManager : MonoBehaviour
 {
     private string action;
 
-    //public string targetActionVariableName = "finalAction"; // Name of the Action variable to check (this will be like "Total", etc)
-    //public string targetActionValue = "Total"; // Value to match
-    //public string targetPressedVariableName = "finalPressedValue"; // Name of the Pressed Value variable to check (this will be true or false)
-    //public string targetPressedValue = "true"; // Value to match
-    private GameObject[] taggedActionBtnObjects;
-    private GameObject[] taggedNumberBtnObjects;
-    private float sessionTotal; // Used to hold the sum of the value of all pressed buttons
+    private GameObject[] taggedActionBtnObjects; // All the buttons tagged with ActionBtn
+    private GameObject[] taggedNumberBtnObjects; // All the buttons tagged with NumberBtn
+    private float buttonsTotal; // Used to hold the sum of the value of all pressed buttons in the current session
     public float runningTotal; // USed to hold the running total of all values added.
     private string totalString; // The value used to pass a string of a number to functions for display
+    private string frontTotalString; // The value used to pass a string of a number for display in the front total window
+    private string runningTotalString; // The value of the running total converted to a string
 
-    // Variables to use for displaying totals values
+    // Variables to use for displaying running totals values in the front display
     public TextMeshPro displayTotalAmount;
-    public TextMeshPro displayTotalAmount_Col1; // 1000000
-    public TextMeshPro displayTotalAmount_Col2; // 100000 
-    public TextMeshPro displayTotalAmount_Col3; // 10000
-    public TextMeshPro displayTotalAmount_Col4; // 1000
-    public TextMeshPro displayTotalAmount_Col5; // 100
-    public TextMeshPro displayTotalAmount_Col6; // 10
-    public TextMeshPro displayTotalAmount_Col7; // 1
-    public TextMeshPro displayTotalAmount_Col_Fract; // 1/4 1/2 3/4
+    public TextMeshPro displayTotalAmount_Col1; // 1000000 column
+    public TextMeshPro displayTotalAmount_Col2; // 100000 column
+    public TextMeshPro displayTotalAmount_Col3; // 10000 column
+    public TextMeshPro displayTotalAmount_Col4; // 1000 column
+    public TextMeshPro displayTotalAmount_Col5; // 100 column
+    public TextMeshPro displayTotalAmount_Col6; // 10 column
+    public TextMeshPro displayTotalAmount_Col7; // 1 column
+    public TextMeshPro displayTotalAmount_Col_Fract; // 1/4 1/2 3/4 - NOTE: Not displaying these for now...
 
+    // A list of buttons that have been pressed to use for resetting values after PullHandle() has been run
+    public List<ButtonManager> changedButtons;
 
-    public List<ButtonManager> changedButtons; // A list of buttons that have been pressed to use for resetting values after PullHandle() has been run
-    public List<float> valuesEntered; // A list of values that have been entered by the user
+    // A list of values that have been entered by the user. This is used to record each individual float entered by the user,
+    // to allow a list to be displayed at the top and a running total to be calculated.
+    public List<float> valuesEntered; 
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -51,9 +52,9 @@ public class HandleManager : MonoBehaviour
 
     /*
      * Some buttons specify an action that should take place. This function looks for the action buttons that 
-     * have been pressed. We do this by looking at the public variable finalAction, which is only set when an 
-     * action button is pressed. We will use this later to select a relevant function to call, to carry out 
-     * that action.
+     * have been pressed. We do this by looking at the public variable from the ButtonManager script which is 
+     * assigned to each button finalAction, & which is only set when an action button is pressed. 
+     * We will use this later to select a relevant function to call, to carry out that action.
      */
     private string GetActionValue()
     {
@@ -84,39 +85,20 @@ public class HandleManager : MonoBehaviour
 
     }
 
-    private float UpdateRunningTotal(float sessionTotal, float runningTotal, string action)
-    {
-
-        UnityEngine.Debug.Log("updateRunningTotal start.............................");
-        UnityEngine.Debug.Log("action = " + action + ", sessionTotal = " + sessionTotal.ToString() + ", runningTotal = " + runningTotal.ToString());
-
-
-        if (action is null)
-        {
-            UnityEngine.Debug.Log("action is null so adding sessionTotal of " + sessionTotal.ToString() + " runningTotal of: " + runningTotal.ToString());
-            runningTotal += sessionTotal;
-            UnityEngine.Debug.Log("RunningTotal is now: " + runningTotal.ToString());
-
-            return runningTotal;
-        }
-
-        UnityEngine.Debug.Log("updateRunningTotal - nothing to change.............................");
-        return runningTotal;
-
-    }
-
     /*
      * The number buttons will have a value saved to the finalValue variable when the button is pressed. We need 
      * to get all of the number buttons that are pressed and add their final values to get the value that has been 
      * entered by the user each time. This will need to be saved for display separately. First, we find all the 
      * GameObjects tagged with NumberBtn, then look through those to find ones where finalPressedValue is true, 
      * then we get the finalValue value and add it to the total count for each pull of the handle.
+     * 
+     * Returns: the combined value of the values assigned to all of the pressed buttons for a single number entry
      */
-    private float GetSessionTotal()
+    private float GetButtonsTotal()
     {
 
         // Initialise value
-        sessionTotal = 0.00f;
+        buttonsTotal = 0.00f;
 
         // Loop through each GameObject that is tagged as a number button so we can get the value assigned to each button
         foreach (GameObject go in taggedNumberBtnObjects)
@@ -127,14 +109,14 @@ public class HandleManager : MonoBehaviour
 
             if (script != null)
             {
-                //UnityEngine.Debug.Log("In GetSessionTotal(), " + go.name + " - script.finalPressedValue returned: " + script.finalPressedValue);
+                //UnityEngine.Debug.Log("In GetButtonsTotal(), " + go.name + " - script.finalPressedValue returned: " + script.finalPressedValue);
 
                 // If the button was pressed:  
                 if (script.finalPressedValue) {
 
                     // Add the button's value to the running session total
-                    UnityEngine.Debug.Log("In GetSessionTotal(), " + go.name + " - script.finalValue returned: " + script.finalValue);
-                    sessionTotal += script.finalValue;
+                    UnityEngine.Debug.Log("In GetButtonsTotal(), " + go.name + " - script.finalValue returned: " + script.finalValue);
+                    buttonsTotal += script.finalValue;
 
                     // and save the names of the GameObjects for later when we want to reset the button for the next round
                     changedButtons.Add(script);
@@ -143,25 +125,70 @@ public class HandleManager : MonoBehaviour
             }
         }
 
-        UnityEngine.Debug.Log("Finally, GetSessionTotal() returned sessionTotal=" + sessionTotal.ToString());
+        UnityEngine.Debug.Log("Finally, GetButtonsTotal() returned buttonsTotal=" + buttonsTotal.ToString());
 
-        return sessionTotal;
+        return buttonsTotal;
 
     }
 
+    /*
+     * Users enter a number & pull the handle to finalise the number entry. The buttons then reset, allowing the user to enter a new number.
+     * This function adds each number to the previous total to create a new total
+     * 
+     */
+    private float UpdateRunningTotal(List<float> valuesEntered, string action)
+    {
+
+        UnityEngine.Debug.Log("updateRunningTotal start.............................");
+        string listString = string.Join(", ", valuesEntered);
+
+        //UnityEngine.Debug.Log("action = " + action + ", buttonsTotal = " + buttonsTotal.ToString() + ", runningTotal = " + runningTotal.ToString());
+        UnityEngine.Debug.Log("action = " + action + ", valuesEntered of " + listString);
+
+        // Initialise variable
+        runningTotal = 0.00f;
+
+        if (action is null)
+        {
+
+            /*
+            UnityEngine.Debug.Log("action is null so adding buttonsTotal of " + buttonsTotal.ToString() + " runningTotal of: " + runningTotal.ToString());
+            runningTotal += buttonsTotal;
+            UnityEngine.Debug.Log("RunningTotal is now: " + runningTotal.ToString());
+            */
+            UnityEngine.Debug.Log("action is null so adding valuesEntered of " + listString);
+
+            foreach (float value in valuesEntered)
+            {
+                runningTotal += value;
+            }
+
+
+            return runningTotal;
+        }
+
+        UnityEngine.Debug.Log("updateRunningTotal - nothing to change.............................");
+        return runningTotal;
+
+    }
+
+    /*
+     * 
+     * 
+     */
     public void PullHandle()
     {
         UnityEngine.Debug.Log("Starting PullHandle: Oh luck be my lady tonight, sings Frank Sinatra...");
 
         // Initialise variable value each time the function is called
-        sessionTotal = 0;
+        //buttonsTotal = 0;
 
-        //Get session running total for the number buttons that have been pressed
-        sessionTotal = GetSessionTotal();
-        UnityEngine.Debug.Log("In PullHandle, GetSessionTotal returned: " + sessionTotal.ToString());
+        //Get total for the number buttons that have been pressed for this specific number entry.
+        buttonsTotal = GetButtonsTotal();
+        UnityEngine.Debug.Log("In PullHandle, GetSessionTotal returned: " + buttonsTotal.ToString());
 
         // Add value to public list of entered values in HandleManager - we can total these later
-        valuesEntered.Add(sessionTotal);
+        valuesEntered.Add(buttonsTotal);
 
         // Now get the action buttons that have been pressed
         action = GetActionValue();
@@ -204,8 +231,9 @@ public class HandleManager : MonoBehaviour
                 UnityEngine.Debug.Log("In PullHandle, doing ELSE action...");
                 //DoActionNumber();
 
-                runningTotal = UpdateRunningTotal(sessionTotal, runningTotal, "");
-                DisplayResult(sessionTotal, runningTotal);
+                //runningTotal = UpdateRunningTotal(buttonsTotal, runningTotal, "");
+                runningTotal = UpdateRunningTotal(valuesEntered, "");
+                DisplayResult(buttonsTotal, runningTotal);
 
             }
 
@@ -287,18 +315,24 @@ public class HandleManager : MonoBehaviour
 
     /*
      * Create result for display on display GameObjects
+     * 
+     * This updates the value of the public Text Mesh Pro variables declared at the top of this script & 
+     * that have been assigned a GameObject via the inspector
      */
-    private void DisplayResult(float sessionTotal, float runningTotal)
+    private void DisplayResult(float buttonsTotal, float runningTotal)
     {
-        UnityEngine.Debug.Log("Start DoActionNumber using sessionTotal: " + sessionTotal.ToString());
+        UnityEngine.Debug.Log("Start DoActionNumber using buttonsTotal: " + buttonsTotal.ToString());
 
 
         // Only update total displays if there is a value to display. 
-        if (sessionTotal > 0)
+        if (buttonsTotal > 0)
         {
 
             // Convert the number to a string
-            totalString = sessionTotal.ToString(); ;
+            totalString = buttonsTotal.ToString();
+
+            // Convert running total to a string
+            runningTotalString = runningTotal.ToString();
 
             // Assign value to top number display
             displayTotalAmount.text = totalString;
@@ -306,15 +340,17 @@ public class HandleManager : MonoBehaviour
 
             // Display on front individual number display
             // Pad with zeros on the left to avoid out of bounds issues below
-            totalString = totalString.PadLeft(7, '0');
+            // Getting each individual value from a number of variable length requiring left-padding is tricky,
+            // so there are some float to string to char to string conversions required.
+            frontTotalString = runningTotalString.PadLeft(7, '0');
 
-            char num1 = totalString[0];// 1000000 
-            char num2 = totalString[1];// 100000 
-            char num3 = totalString[2];// 10000 
-            char num4 = totalString[3];// 1000 
-            char num5 = totalString[4];// 100 
-            char num6 = totalString[5];// 10 
-            char num7 = totalString[6];// 1 
+            char num1 = frontTotalString[0];// 1000000 column
+            char num2 = frontTotalString[1];// 100000 column 
+            char num3 = frontTotalString[2];// 10000 column 
+            char num4 = frontTotalString[3];// 1000 column 
+            char num5 = frontTotalString[4];// 100 column 
+            char num6 = frontTotalString[5];// 10 column 
+            char num7 = frontTotalString[6];// 1 column 
 
             if (num1 != '\0') { displayTotalAmount_Col1.text = num1.ToString(); } else { displayTotalAmount_Col1.text = "0"; }
             ; // 1000000
@@ -331,7 +367,7 @@ public class HandleManager : MonoBehaviour
             if (num7 != '\0') { displayTotalAmount_Col7.text = num7.ToString(); } else { displayTotalAmount_Col7.text = "0"; }
             ; // 1
 
-            // Need to work out how to deal with fractions
+            // Need to work out how to deal with fractions so leaving as a dash for now...
             displayTotalAmount_Col_Fract.text = "-"; // 1/4 1/2 3/4
 
         }
