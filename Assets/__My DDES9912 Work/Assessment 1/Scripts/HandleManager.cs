@@ -64,11 +64,6 @@ public class HandleManager : MonoBehaviour
 
         // Find Handle GameObject with Handle tag
         taggedHandleObject = GameObject.FindWithTag("Handle");
-        
-
-        // Initialise values that we will add to as the user interacts with the GameObjects
-        //valuesEntered = null;
-        //paperPrintoutString = "";
 
     }
 
@@ -199,7 +194,7 @@ public class HandleManager : MonoBehaviour
         // Initialise variable
         runningTotal = 0.00f;
 
-        if (action == "Number" || action == "Total" || action == "SubTotal")
+        if (action == "Number" || action == "Total" || action == "SubTotal" || action == "Repeat")
         {
 
             UnityEngine.Debug.Log("UpdateRunningTotal() - action is Number/Total/SubTotal so adding valuesEntered of " + listString);
@@ -237,17 +232,17 @@ public class HandleManager : MonoBehaviour
         // Initialise variable
         paperPrintoutString = "";
 
-        if (action == "Number")
+        if (action == "Number" || action == "Repeat")
         {
 
-            UnityEngine.Debug.Log("FormatPaperPrintout() - action is Number so adding valuesEntered of " + listString);
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action is Number/Repeat so adding valuesEntered of " + listString);
 
             foreach (string value in paperPrintoutValues)
             {
                 paperPrintoutString += value + '\n';
             }
 
-            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Number returned: " + paperPrintoutString);
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Number/Repeat returned: " + paperPrintoutString);
 
             return paperPrintoutString;
 
@@ -273,7 +268,7 @@ public class HandleManager : MonoBehaviour
         {
             UnityEngine.Debug.Log("FormatPaperPrintout() - nothing to print.............................");
 
-            return paperPrintoutString = "ERROR";
+            return paperPrintoutString = "FormatPaperPrintout - no variable";
         }
 
         
@@ -443,13 +438,24 @@ public class HandleManager : MonoBehaviour
 
                 // This keeps the Repeat button and any pressed number buttons remaining pressed until the
                 // Repeat button is unpressed. This allows the user to keep pulling the handle and adding
-                // the same number
+                // the same number. We do this in ReleaseHandle() by not doing release actions when Repeat is pressed.
+                // NOTE: Repeat button stays pressed until the user unpresses it.
+
+                UnityEngine.Debug.Log("In PullHandle, doing Repeat action...");
+
+                runningTotal = UpdateRunningTotal(valuesEntered, action);
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
+
+                paperPrintoutString = FormatPaperPrintout(paperPrintoutValues, runningTotal, action);
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
+
+                // Send outputs to the display object value variables
+                DisplayResult(buttonsTotal, runningTotal, paperPrintoutString, action);
 
                 //DoActionRepeat(); 
 
             } else if (action == "Number") {
 
-                // Where do we store/get running total from? Do we put this in a game object?
                 UnityEngine.Debug.Log("In PullHandle, doing Number action...");
                 //DoActionNumber();
 
@@ -488,31 +494,38 @@ public class HandleManager : MonoBehaviour
             MoveHandle(taggedHandleObject, "Backward");
         }
 
-        // Reset the values of variables for each button GameObject that has been pressed so it can be pressed again
-        foreach (ButtonManager script in changedButtons)
+        
+        // Normal behaviour on release of the handle is to reset all the changed buttons. We do not do this for Repeat action.
+        if (action!="Repeat")
         {
-            //UnityEngine.Debug.Log("In ReleaseHandle(), script.finalValue returned: " + script.finalValue);
+            // Reset the values of variables for each button GameObject that has been pressed so it can be pressed again
+            foreach (ButtonManager script in changedButtons)
+            {
+                //UnityEngine.Debug.Log("In ReleaseHandle(), script.finalValue returned: " + script.finalValue);
 
-            UnityEngine.Debug.Log("Resetting button " + script + " to original position");
+                UnityEngine.Debug.Log("Resetting button " + script + " to original position");
 
-            // Move button back up to original not-pressed position
-            script.transform.localPosition = new Vector3(script.localPositionX, script.localPositionY, script.localPositionZ);
-            // Change state of button back to not-pressed
-            script.buttonPressed = false;
-            // Set the numerical value of the button to be the value to zero
-            script.finalValue = 0;
-            // Set the action value of the button to be not active
-            script.finalAction = "Inactive";
-            // Set the final Button Pressed value to be the value specified in the object's inspector window
-            script.finalPressedValue = script.buttonPressed;
+                // Move button back up to original not-pressed position
+                script.transform.localPosition = new Vector3(script.localPositionX, script.localPositionY, script.localPositionZ);
+                // Change state of button back to not-pressed
+                script.buttonPressed = false;
+                // Set the numerical value of the button to be the value to zero
+                script.finalValue = 0;
+                // Set the action value of the button to be not active
+                script.finalAction = "Inactive";
+                // Set the final Button Pressed value to be the value specified in the object's inspector window
+                script.finalPressedValue = script.buttonPressed;
+
+            }
 
         }
+
 
         // Set action to null so user cannot pull the handle
         //action = null;
 
 
-        
+
         // After pressing Total, all previous totals should be cleared out to start again from scratch
         if (action == "Total")
         {
@@ -521,7 +534,8 @@ public class HandleManager : MonoBehaviour
             paperPrintoutValues.Clear();
 
         }
-        
+
+        UnityEngine.Debug.Log("END OF SESSION------------------------------------------------------------------------");
 
     }
 
