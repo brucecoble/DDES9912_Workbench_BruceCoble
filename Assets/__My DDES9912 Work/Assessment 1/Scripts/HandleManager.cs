@@ -80,11 +80,11 @@ public class HandleManager : MonoBehaviour
      */
     private string GetActionValue()
     {
+        // Set default value
+        action = null;
 
         foreach (GameObject go in taggedActionBtnObjects)
         {
-            // Set default value
-            action = "";
 
             // Get the script component that contains the variable
             ButtonManager script = go.GetComponent<ButtonManager>();
@@ -99,9 +99,12 @@ public class HandleManager : MonoBehaviour
                 else if (script.finalAction == "1Half") { action = "1Half"; }
                 else if (script.finalAction == "3Qtr") { action = "3Qtr"; }
                 else if (script.finalAction == "Repeat") { action = "Repeat"; }
-                else { action = "Number"; }
+                //else { action = "Number"; }
             }           
         }
+        // If there are no other actions, this is just a number add action
+        action ??= "Number";
+
         UnityEngine.Debug.Log("GetActionValue returned: " + action);
         return action;
 
@@ -196,7 +199,7 @@ public class HandleManager : MonoBehaviour
         // Initialise variable
         runningTotal = 0.00f;
 
-        if (action == "Number")
+        if (action == "Number" || action == "Total")
         {
 
             UnityEngine.Debug.Log("UpdateRunningTotal() - action is Number so adding valuesEntered of " + listString);
@@ -227,9 +230,10 @@ public class HandleManager : MonoBehaviour
 
         UnityEngine.Debug.Log("FormatPaperPrintout() start.............................");
         string listString = string.Join(", ", paperPrintoutValues);
+        string runningTotalString = runningTotal.ToString();
 
         //UnityEngine.Debug.Log("action = " + action + ", buttonsTotal = " + buttonsTotal.ToString() + ", runningTotal = " + runningTotal.ToString());
-        UnityEngine.Debug.Log("FormatPaperPrintout() - action = " + action + ", valuesEntered of " + listString);
+        UnityEngine.Debug.Log("FormatPaperPrintout() - action = " + action + ", valuesEntered of " + listString + " & runningTotalString: " + runningTotalString);
 
         // Initialise variable
         paperPrintoutString = "";
@@ -240,41 +244,52 @@ public class HandleManager : MonoBehaviour
             UnityEngine.Debug.Log("FormatPaperPrintout() - action is Number so adding valuesEntered of " + listString);
 
             //paperPrintoutValues = string.Join("\n", paperPrintoutValues);
-            
+
             foreach (string value in paperPrintoutValues)
             {
                 paperPrintoutString += value + '\n';
             }
-            
-            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Number returned: " + paperPrintoutString );
+
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Number returned: " + paperPrintoutString);
 
             return paperPrintoutString;
 
-        } else if (action == "Total")
+        }
+        else if (action == "Total")
         {
 
-            UnityEngine.Debug.Log("FormatPaperPrintout() - action is Total so adding valuesEntered of " + listString + " plus total");
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action is Total so adding valuesEntered of " + listString + " plus total" + runningTotalString);
 
             //paperPrintoutValues = string.Join("\n", paperPrintoutValues);
 
+            // Add total to list of values
+            //paperPrintoutValues.Add("---------");
+            //paperPrintoutValues.Add(runningTotal.ToString());
+
+            // Now loop through them all to create a string
             foreach (string value in paperPrintoutValues)
             {
                 paperPrintoutString += value + '\n';
             }
 
             // Now add total line
-            paperPrintoutString += "---------" + '\n' + runningTotal.ToString();
+            paperPrintoutString += '\n' + "---------" + '\n' + "T " + runningTotalString;
+            //paperPrintoutString = paperPrintoutString + "---------" + "T " + runningTotalString;
 
 
-            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Total returned: " + paperPrintoutString);
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Total finally returned: " + paperPrintoutString);
 
             return paperPrintoutString;
 
         }
+        else
+        {
+            UnityEngine.Debug.Log("FormatPaperPrintout() - nothing to print.............................");
 
-        UnityEngine.Debug.Log("FormatPaperPrintout() - nothing to change.............................");
+            return paperPrintoutString = "ERROR";
+        }
 
-        return paperPrintoutString;
+        
 
     }
 
@@ -287,8 +302,7 @@ public class HandleManager : MonoBehaviour
         if (direction == "Forward")
         {
             tiltAngle = 80.0f;
-        }
-        else
+        } else if (direction == "Backward")
         {
             tiltAngle = -80.0f;
         }
@@ -310,7 +324,7 @@ public class HandleManager : MonoBehaviour
         UnityEngine.Debug.Log("Starting PullHandle: Oh luck be my lady tonight, sings Frank Sinatra...");
 
         // Initialise variable value each time the function is called
-        buttonsTotal = 0;
+        //buttonsTotal = 0;
 
         //Get total for the number buttons that have been pressed for this specific number entry.
         buttonsTotal = GetButtonsTotal();
@@ -319,7 +333,11 @@ public class HandleManager : MonoBehaviour
         // Safely add value to public list of entered float values in HandleManager (avoiding multithreading error)
         lock (listlock)
         {
-            valuesEntered.Add(buttonsTotal);
+            // We don't want to add rows of they are only zero (i.e. no number has been pressed but the handle has been pulled
+            if (buttonsTotal > 0)
+            {
+                valuesEntered.Add(buttonsTotal);
+            }
         }        
         
         // Safely add value to public list of entered string values in HandleManager (avoiding multithreading error)
@@ -333,13 +351,6 @@ public class HandleManager : MonoBehaviour
             }
             
         }
-
-
-        // Add buttons total to our paper printout display string
-        //string newString = buttonsTotal.ToString();
-        //UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
-        //paperPrintoutString += string.Join("\n\r\n\r", newString);
-        //UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
 
         // Now get the action buttons that have been pressed
         action = GetActionValue();
@@ -369,10 +380,12 @@ public class HandleManager : MonoBehaviour
 
                 // Send outputs to the display object value variables
                 DisplayResult(buttonsTotal, runningTotal, paperPrintoutString);
+                             
 
                 //DoActionTotal();
-                
-            } else if (action == "SubTotal") {
+
+            }
+            else if (action == "SubTotal") {
 
                 // This prints the subtotal value at the bottom of the top display in red with a "T" next to it
                 // and resets the front display to zero (you would normally rip the printed paper off 
@@ -470,7 +483,19 @@ public class HandleManager : MonoBehaviour
         }
 
         // Set action to null so user cannot pull the handle
-        action = null;
+        //action = null;
+
+
+        
+        // After pressing Total, all previous totals should be cleared out to start again from scratch
+        if (action == "Total")
+        {
+            runningTotal = 0.00f;
+            valuesEntered.Clear();
+            paperPrintoutValues.Clear();
+
+        }
+        
 
     }
 
@@ -532,56 +557,50 @@ public class HandleManager : MonoBehaviour
         UnityEngine.Debug.Log("Start DisplayResult() using buttonsTotal: " + buttonsTotal.ToString() + ", runningTotal: " + runningTotal.ToString());
         UnityEngine.Debug.Log("Start DisplayResult() using paperPrintoutString: " + paperPrintoutString);
 
-                // Only update total displays if there is a value to display. 
-        if (buttonsTotal > 0)
-        {
+        // Convert the number to a string
+        totalString = buttonsTotal.ToString();
 
-            // Convert the number to a string
-            totalString = buttonsTotal.ToString();
+        // Convert running total to a string
+        runningTotalString = runningTotal.ToString();
 
-            // Convert running total to a string
-            runningTotalString = runningTotal.ToString();
+        // Assign value to top number display
+        displayTotalAmount.text = totalString;
 
-            // Assign value to top number display
-            displayTotalAmount.text = totalString;  
-
-            // Assign value to top paper printout display
-            displayPaperPrintout.text = paperPrintoutString;
+        // Assign value to top paper printout display
+        displayPaperPrintout.text = paperPrintoutString;
 
 
-            // Display on front individual number display
-            // Pad with zeros on the left to avoid out of bounds issues below
-            // Getting each individual value from a number of variable length requiring left-padding is tricky,
-            // so there are some float to string to char to string conversions required.
-            frontTotalString = runningTotalString.PadLeft(7, '0');
+        // Display on front individual number display
+        // Pad with zeros on the left to avoid out of bounds issues below
+        // Getting each individual value from a number of variable length requiring left-padding is tricky,
+        // so there are some float to string to char to string conversions required.
+        frontTotalString = runningTotalString.PadLeft(7, '0');
 
-            char num1 = frontTotalString[0];// 1000000 column
-            char num2 = frontTotalString[1];// 100000 column 
-            char num3 = frontTotalString[2];// 10000 column 
-            char num4 = frontTotalString[3];// 1000 column 
-            char num5 = frontTotalString[4];// 100 column 
-            char num6 = frontTotalString[5];// 10 column 
-            char num7 = frontTotalString[6];// 1 column 
+        char num1 = frontTotalString[0];// 1000000 column
+        char num2 = frontTotalString[1];// 100000 column 
+        char num3 = frontTotalString[2];// 10000 column 
+        char num4 = frontTotalString[3];// 1000 column 
+        char num5 = frontTotalString[4];// 100 column 
+        char num6 = frontTotalString[5];// 10 column 
+        char num7 = frontTotalString[6];// 1 column 
 
-            if (num1 != '\0') { displayTotalAmount_Col1.text = num1.ToString(); } else { displayTotalAmount_Col1.text = "0"; }
+        if (num1 != '\0') { displayTotalAmount_Col1.text = num1.ToString(); } else { displayTotalAmount_Col1.text = "0"; }
             ; // 1000000
-            if (num2 != '\0') { displayTotalAmount_Col2.text = num2.ToString(); } else { displayTotalAmount_Col2.text = "0"; }
+        if (num2 != '\0') { displayTotalAmount_Col2.text = num2.ToString(); } else { displayTotalAmount_Col2.text = "0"; }
             ; // 100000
-            if (num3 != '\0') { displayTotalAmount_Col3.text = num3.ToString(); } else { displayTotalAmount_Col3.text = "0"; }
+        if (num3 != '\0') { displayTotalAmount_Col3.text = num3.ToString(); } else { displayTotalAmount_Col3.text = "0"; }
             ; // 10000
-            if (num4 != '\0') { displayTotalAmount_Col4.text = num4.ToString(); } else { displayTotalAmount_Col4.text = "0"; }
+        if (num4 != '\0') { displayTotalAmount_Col4.text = num4.ToString(); } else { displayTotalAmount_Col4.text = "0"; }
             ; // 1000
-            if (num5 != '\0') { displayTotalAmount_Col5.text = num5.ToString(); } else { displayTotalAmount_Col5.text = "0"; }
+        if (num5 != '\0') { displayTotalAmount_Col5.text = num5.ToString(); } else { displayTotalAmount_Col5.text = "0"; }
             ; // 100
-            if (num6 != '\0') { displayTotalAmount_Col6.text = num6.ToString(); } else { displayTotalAmount_Col6.text = "0"; }
+        if (num6 != '\0') { displayTotalAmount_Col6.text = num6.ToString(); } else { displayTotalAmount_Col6.text = "0"; }
             ; // 10
-            if (num7 != '\0') { displayTotalAmount_Col7.text = num7.ToString(); } else { displayTotalAmount_Col7.text = "0"; }
+        if (num7 != '\0') { displayTotalAmount_Col7.text = num7.ToString(); } else { displayTotalAmount_Col7.text = "0"; }
             ; // 1
 
-            // Need to work out how to deal with fractions so leaving as a dash for now...
-            displayTotalAmount_Col_Fract.text = "-"; // 1/4 1/2 3/4
-
-        }
+        // Need to work out how to deal with fractions so leaving as a dash for now...
+        displayTotalAmount_Col_Fract.text = "-"; // 1/4 1/2 3/4
 
         return;
     }
