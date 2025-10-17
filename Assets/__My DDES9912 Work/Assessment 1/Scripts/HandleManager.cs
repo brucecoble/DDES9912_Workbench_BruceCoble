@@ -196,7 +196,7 @@ public class HandleManager : MonoBehaviour
      * This function adds each number to the previous total to create a new total
      * 
      */
-    private string FormatPaperPrintout(List<string> paperPrintoutValues, string action)
+    private string FormatPaperPrintout(List<string> paperPrintoutValues, float runningTotal, string action)
     {
 
         UnityEngine.Debug.Log("FormatPaperPrintout() start.............................");
@@ -221,6 +221,26 @@ public class HandleManager : MonoBehaviour
             }
             
             UnityEngine.Debug.Log("FormatPaperPrintout() - action==Number returned: " + paperPrintoutString );
+
+            return paperPrintoutString;
+
+        } else if (action == "Total")
+        {
+
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action is Total so adding valuesEntered of " + listString + " plus total");
+
+            //paperPrintoutValues = string.Join("\n", paperPrintoutValues);
+
+            foreach (string value in paperPrintoutValues)
+            {
+                paperPrintoutString += value + '\n';
+            }
+
+            // Now add total line
+            paperPrintoutString += "---------" + '\n' + runningTotal.ToString();
+
+
+            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Total returned: " + paperPrintoutString);
 
             return paperPrintoutString;
 
@@ -311,7 +331,20 @@ public class HandleManager : MonoBehaviour
                 // and resets the front display to zero (you would normally rip the printed paper off 
                 // from the top typewriter display section & start a new addition task).
 
-                DoActionTotal();
+                // Where do we store/get running total from? Do we put this in a game object?
+                UnityEngine.Debug.Log("In PullHandle, doing Total action...");
+
+                //runningTotal = UpdateRunningTotal(buttonsTotal, runningTotal, "");
+                runningTotal = UpdateRunningTotal(valuesEntered, action);
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
+
+                paperPrintoutString = FormatPaperPrintout(paperPrintoutValues, runningTotal, action);
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
+
+                // Send outputs to the display object value variables
+                DisplayResult(buttonsTotal, runningTotal, paperPrintoutString);
+
+                //DoActionTotal();
                 
             } else if (action == "SubTotal") {
 
@@ -355,10 +388,13 @@ public class HandleManager : MonoBehaviour
                 //DoActionNumber();
 
                 //runningTotal = UpdateRunningTotal(buttonsTotal, runningTotal, "");
-                runningTotal = UpdateRunningTotal(valuesEntered, "Number");
+                runningTotal = UpdateRunningTotal(valuesEntered, action);
                 UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
-                paperPrintoutString = FormatPaperPrintout(paperPrintoutValues, "Number");
+
+                paperPrintoutString = FormatPaperPrintout(paperPrintoutValues, runningTotal, action);
                 UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
+
+                // Send outputs to the display object value variables
                 DisplayResult(buttonsTotal, runningTotal, paperPrintoutString);
 
             } else {
