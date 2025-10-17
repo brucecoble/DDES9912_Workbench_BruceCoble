@@ -278,7 +278,6 @@ public class HandleManager : MonoBehaviour
     private void MoveHandle(GameObject handleGraphic, string direction)
     {
         float tiltAngle = 0.0f;
-        //bool hasMoved = false; // Use this to ensure the release does not trigger if the pull handle did not trigger in the first place
 
         // Set the amount to move
         if (direction == "Forward")
@@ -536,52 +535,6 @@ public class HandleManager : MonoBehaviour
         }
 
         UnityEngine.Debug.Log("END OF SESSION------------------------------------------------------------------------");
-
-    }
-
-
-    private void DoActionTotal()
-    {
-        UnityEngine.Debug.Log("Start DoActionTotal");
-        return;
-    }
-
-    private void DoActionSubTotal()
-    {
-        UnityEngine.Debug.Log("Start DoActionSubTotal");
-        return;
-    }
-    private void DoActionNonAdd()
-    {
-        UnityEngine.Debug.Log("Start DoActionNonAdd");
-        return;
-    }
-    private void DoAction1Qtr()
-    {
-        UnityEngine.Debug.Log("Start DoAction1Qtr");
-        return;
-    }
-    private void DoAction1Half()
-    {
-        UnityEngine.Debug.Log("Start DoAction1Half");
-        return;
-    }
-    private void DoAction3Qtr()
-    {
-        UnityEngine.Debug.Log("Start DoAction3Qtr");
-        return;
-    }
-    private void DoActionRepeat()
-    {
-        UnityEngine.Debug.Log("Start DoActionRepeat");
-        return;
-    }
-    private void DoActionNumber()
-    {
-        UnityEngine.Debug.Log("Start DoActionNumber");
-        //DisplayResult();
-
-        return;
 
     }
     
