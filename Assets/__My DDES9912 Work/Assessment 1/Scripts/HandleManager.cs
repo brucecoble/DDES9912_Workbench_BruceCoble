@@ -13,6 +13,8 @@ public class HandleManager : MonoBehaviour
 
     private GameObject[] taggedActionBtnObjects; // All the buttons tagged with ActionBtn
     private GameObject[] taggedNumberBtnObjects; // All the buttons tagged with NumberBtn
+    private GameObject taggedHandleObject; // Handle Graphic GameObject
+
     private float buttonsTotal; // Used to hold the sum of the value of all pressed buttons in the current session
     public float runningTotal; // USed to hold the running total of all values added.
     private string totalString; // The value used to pass a string of a number to functions for display
@@ -59,6 +61,10 @@ public class HandleManager : MonoBehaviour
 
         // Find all GameObjects with an ActionBtn tag
         taggedNumberBtnObjects = GameObject.FindGameObjectsWithTag("NumberBtn");
+
+        // Find Handle GameObject with Handle tag
+        taggedHandleObject = GameObject.FindWithTag("Handle");
+        
 
         // Initialise values that we will add to as the user interacts with the GameObjects
         //valuesEntered = null;
@@ -226,7 +232,27 @@ public class HandleManager : MonoBehaviour
 
     }
 
+    private void MoveHandle(GameObject handleGraphic, string direction)
+    {
+        float tiltAngle = 0.0f;
+        //bool hasMoved = false; // Use this to ensure the release does not trigger if the pull handle did not trigger in the first place
 
+        // Set the amount to move
+        if (direction == "Forward")
+        {
+            tiltAngle = 80.0f;
+        }
+        else
+        {
+            tiltAngle = -80.0f;
+        }
+
+        if (handleGraphic != null)
+        {
+            handleGraphic.transform.Rotate(Vector3.up, tiltAngle);
+        }
+
+    }
     
 
     /*
@@ -254,7 +280,12 @@ public class HandleManager : MonoBehaviour
         
         lock (listlock2)
         {
-            paperPrintoutValues.Add(buttonsTotal.ToString());
+            // We don't want to print zeros
+            if (buttonsTotal > 0)
+            {
+                paperPrintoutValues.Add(buttonsTotal.ToString());
+            }
+            
         }
 
 
@@ -270,6 +301,9 @@ public class HandleManager : MonoBehaviour
 
         if (action != "")
         {
+            // Turn the HandleGraphic GameObject but only if there is an action (i.e. only if a button has been pressed)
+            MoveHandle(taggedHandleObject, "Forward");
+
             // Do actions
             if (action == "Total") {
 
@@ -342,6 +376,17 @@ public class HandleManager : MonoBehaviour
      */
     public void ReleaseHandle()
     {
+
+        // Now get the action buttons that have been pressed
+        action = GetActionValue();
+        UnityEngine.Debug.Log("In PullHandle, GetActionValue returned: " + action);
+
+        if (action != null)
+        {
+            // Turn the HandleGraphic GameObject
+            MoveHandle(taggedHandleObject, "Backward");
+        }
+
         // Reset the values of variables for each button GameObject that has been pressed so it can be pressed again
         foreach (ButtonManager script in changedButtons)
         {
@@ -361,9 +406,13 @@ public class HandleManager : MonoBehaviour
             script.finalPressedValue = script.buttonPressed;
 
         }
+
+        // Set action to null so user cannot pull the handle
+        action = null;
+
     }
 
-    
+
     private void DoActionTotal()
     {
         UnityEngine.Debug.Log("Start DoActionTotal");
