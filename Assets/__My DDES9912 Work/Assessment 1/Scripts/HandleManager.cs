@@ -320,10 +320,16 @@ public class HandleManager : MonoBehaviour
         // Safely add value to public list of entered float values in HandleManager (avoiding multithreading error)
         lock (listlock)
         {
+
             // We don't want to add rows of they are only zero (i.e. no number has been pressed but the handle has been pulled
             if (buttonsTotal > 0)
             {
-                valuesEntered.Add(buttonsTotal);
+                // Do not add the value to the valuesEntered list if the action is "Non-Add" - it is for display only in the printed display
+                if (action != "NonAdd")
+                {
+                    valuesEntered.Add(buttonsTotal);
+                }
+                
             }
         }        
         
@@ -334,7 +340,17 @@ public class HandleManager : MonoBehaviour
             // We don't want to print zeros
             if (buttonsTotal > 0)
             {
-                paperPrintoutValues.Add(buttonsTotal.ToString());
+                // Non-Add prints the number with an "N" next to it but does not include the number in the values entered list
+                if (action == "NonAdd")
+                {
+                    string nonaddValueString = "N " + buttonsTotal.ToString();
+                    paperPrintoutValues.Add(nonaddValueString);
+                }
+                else
+                {
+                    paperPrintoutValues.Add(buttonsTotal.ToString());
+                }
+                
             }
             
         }
@@ -381,7 +397,6 @@ public class HandleManager : MonoBehaviour
                 // Where do we store/get running total from? Do we put this in a game object?
                 UnityEngine.Debug.Log("In PullHandle, doing SubTotal action...");
 
-                //runningTotal = UpdateRunningTotal(buttonsTotal, runningTotal, "");
                 runningTotal = UpdateRunningTotal(valuesEntered, action);
                 UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
 
@@ -398,19 +413,31 @@ public class HandleManager : MonoBehaviour
                 // This prints the number at the bottom of the top display in black with an "N" next to it,
                 // but does not add it to the running total at the front
 
-                DoActionNonAdd(); 
+                // Where do we store/get running total from? Do we put this in a game object?
+                UnityEngine.Debug.Log("In PullHandle, doing NonAdd action...");
+
+                runningTotal = UpdateRunningTotal(valuesEntered, action);
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
+
+                paperPrintoutString = FormatPaperPrintout(paperPrintoutValues, runningTotal, action);
+                UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is now: " + paperPrintoutString);
+
+                // Send outputs to the display object value variables
+                DisplayResult(buttonsTotal, runningTotal, paperPrintoutString, action);
+
+                //DoActionNonAdd(); 
 
             } else if (action == "1Qtr") {
 
-                DoAction1Qtr(); 
+                //DoAction1Qtr(); 
 
             } else if (action == "1Half") {
 
-                DoAction1Half(); 
+                //DoAction1Half(); 
 
             } else if (action == "3Qtr") {
 
-                DoAction3Qtr(); 
+                //DoAction3Qtr(); 
 
             } else if (action == "Repeat") {
 
@@ -418,7 +445,7 @@ public class HandleManager : MonoBehaviour
                 // Repeat button is unpressed. This allows the user to keep pulling the handle and adding
                 // the same number
 
-                DoActionRepeat(); 
+                //DoActionRepeat(); 
 
             } else if (action == "Number") {
 
@@ -426,7 +453,6 @@ public class HandleManager : MonoBehaviour
                 UnityEngine.Debug.Log("In PullHandle, doing Number action...");
                 //DoActionNumber();
 
-                //runningTotal = UpdateRunningTotal(buttonsTotal, runningTotal, "");
                 runningTotal = UpdateRunningTotal(valuesEntered, action);
                 UnityEngine.Debug.Log("In PullHandle, paperPrintoutString is currently: " + paperPrintoutString);
 
