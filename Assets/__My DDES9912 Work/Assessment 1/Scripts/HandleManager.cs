@@ -147,6 +147,32 @@ public class HandleManager : MonoBehaviour
             }
         }
 
+        // Now loop through each GameObject that is tagged as an Action button so we can add them to the list of changedButtons for resetting later
+        foreach (GameObject go in taggedActionBtnObjects)
+        {
+
+            // Get the script component that contains the value variables for each GameObject
+            ButtonManager script = go.GetComponent<ButtonManager>();
+
+            if (script != null)
+            {
+                //UnityEngine.Debug.Log("In GetButtonsTotal(), " + go.name + " - script.finalPressedValue returned: " + script.finalPressedValue);
+
+                // If the button was pressed:  
+                if (script.finalPressedValue)
+                {
+
+                    // Add the button's value to the running session total
+                    UnityEngine.Debug.Log("In GetButtonsTotal(), add Action Button to changedButtons: " + go.name);
+                   
+                    // and save the names of the GameObjects for later when we want to reset the button for the next round
+                    changedButtons.Add(script);
+
+                }
+            }
+        }
+
+
         UnityEngine.Debug.Log("Finally, GetButtonsTotal() returned buttonsTotal=" + buttonsTotal.ToString());
 
         return buttonsTotal;
