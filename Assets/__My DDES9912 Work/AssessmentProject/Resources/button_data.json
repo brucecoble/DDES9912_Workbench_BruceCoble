@@ -1,0 +1,12 @@
+{
+	"buttons":
+		[
+			{ "id": "ButtonWhite_Col1_Row1", "action": "number", "button_value": 1000000 },
+			{ "id": "ButtonBlack_Col2_Row1", "action": "number", "button_value": 100000 },
+			{ "id": "ButtonBlack_Col3_Row1", "action": "number", "button_value": 10000 },
+			{ "id": "ButtonBlack_Col4_Row1", "action": "number", "button_value": 1000 },
+			{ "id": "ButtonBlack_Col5_Row1", "action": "number", "button_value": 100 },
+			{ "id": "ButtonBlack_Col6_Row1", "action": "number", "button_value": 10 },
+			{ "id": "ButtonBlack_Col7_Row1", "action": "number", "button_value": 1 }
+		]
+}
