@@ -15,17 +15,14 @@ public class ButtonPusher : MonoBehaviour
     public float subtractXAmount = 1.15f; // The value to subtract from the X position
     public float subtractYAmount = 0.65f; // The value to subtract from the X position
 
+    public float bounceForce = 10f; // Adjust this value to control bounce strength
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // Get this object's position
         currentPos = transform.position;
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
         if (targetGameObject != null)
         {
             // Get the target GameObject's position
@@ -58,25 +55,57 @@ public class ButtonPusher : MonoBehaviour
         {
             Debug.LogWarning("Target GameObject not assigned to MoveToTarget script on " + gameObject.name);
         }
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+
         
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        
         subject = other.GetComponent<InteractableGeneral>();
         Debug.Log("OnTriggerEnter begin");
 
+        // Check if the entering object has a Rigidbody
+        Rigidbody otherRigidbody = other.GetComponent<Rigidbody>();
+
+        // Now bounce back
         if (subject != null)
         {
+
             // Invoke the interaction events (i.e. press the button & make the sound)
             subject.onPrimaryInteract.Invoke();
 
             Debug.Log("OnTriggerEnter invoke complete");
 
+            if (otherRigidbody != null)
+            {
+                // Calculate the bounce direction (e.g., opposite to the entry direction)
+                // For a simple upward bounce:
+                Vector3 bounceDirection = Vector3.up;
+
+                // For bouncing relative to the trigger's normal (if it's a plane/wall):
+                // You might need to determine the contact point and normal for more precise bounces.
+                // For simplicity, let's assume a general upward or outward bounce.
+
+                // Apply an impulse force to the Rigidbody
+                otherRigidbody.AddForce(bounceDirection * bounceForce, ForceMode.Impulse);
+
+                // Alternatively, directly set the velocity:
+                // otherRigidbody.velocity = bounceDirection * bounceForce;
+
+            }
+
             // Return to starting point
             //transform.position = Vector3.MoveTowards(transform.position, currentPos, Time.deltaTime * speed);
-            transform.position = currentPos;
-            Debug.Log("After invoke Position: " + currentPos);
+            //transform.position = currentPos;
+            //Debug.Log("After invoke Position: " + currentPos);
         }
     }
 }
