@@ -76,9 +76,10 @@ public class ButtonManager : MonoBehaviour
             // Set the final Button Pressed value to be the value specified in the object's inspector window
             finalPressedValue = buttonPressed;
 
-        } else
+        } 
+        else
         {
-            /*
+            
             Debug.Log("Resetting button to original position");
 
             // Move button back up to original not-pressed position
@@ -91,11 +92,12 @@ public class ButtonManager : MonoBehaviour
             finalAction = "Inactive";
             // Set the final Button Pressed value to be the value specified in the object's inspector window
             finalPressedValue = buttonPressed;
-            */
+            
         }
         
     }
 
+    /*
     public void ResetButton()
     {
         if (buttonPressed)
@@ -115,5 +117,6 @@ public class ButtonManager : MonoBehaviour
 
         }
     }
+    */
 }
 
