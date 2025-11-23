@@ -9,6 +9,7 @@ public class ButtonPusher : MonoBehaviour
     public InteractableGeneral subject;
     public GameObject targetGameObject; // Assign your target GameObject in the Inspector
     private Vector3 currentPos;
+    private Vector3 origin;
     public float speed; // Adjust speed as needed
 
     // We only want the tip of the pusher to collide - we don't want the pusher to go the the pivot point which is half way
@@ -16,6 +17,11 @@ public class ButtonPusher : MonoBehaviour
     public float subtractYAmount = 0.65f; // The value to subtract from the X position
 
     public float bounceForce = 10f; // Adjust this value to control bounce strength
+
+    void Awake()
+    {
+        origin = transform.position;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -86,6 +92,9 @@ public class ButtonPusher : MonoBehaviour
 
             if (otherRigidbody != null)
             {
+
+                Debug.Log("OnTriggerEnter in if otherrigidbody section");
+
                 // Calculate the bounce direction (e.g., opposite to the entry direction)
                 // For a simple upward bounce:
                 Vector3 bounceDirection = Vector3.up;
@@ -101,9 +110,10 @@ public class ButtonPusher : MonoBehaviour
                 // otherRigidbody.velocity = bounceDirection * bounceForce;
 
             }
+            Debug.Log("OnTriggerEnter - AT END");
 
             // Return to starting point
-            //transform.position = Vector3.MoveTowards(transform.position, currentPos, Time.deltaTime * speed);
+            transform.position = Vector3.MoveTowards(transform.position, origin, Time.deltaTime * speed);
             //transform.position = currentPos;
             //Debug.Log("After invoke Position: " + currentPos);
         }

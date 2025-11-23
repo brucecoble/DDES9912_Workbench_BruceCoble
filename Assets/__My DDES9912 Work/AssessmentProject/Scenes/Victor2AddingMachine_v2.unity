@@ -5780,6 +5780,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1888946215971767432, guid: c2efaf126e5b0044fbc61b2662eae20d, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1888946215971767432, guid: c2efaf126e5b0044fbc61b2662eae20d, type: 3}
+      propertyPath: m_ProvidesContacts
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2543696049900485349, guid: c2efaf126e5b0044fbc61b2662eae20d, type: 3}
       propertyPath: onPrimaryInteract.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -8669,7 +8677,7 @@ GameObject:
   - component: {fileID: 1511164579}
   - component: {fileID: 1511164578}
   - component: {fileID: 1511164583}
-  - component: {fileID: 1511164585}
+  - component: {fileID: 1511164584}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -8798,7 +8806,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1511164585
+--- !u!114 &1511164584
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8807,12 +8815,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1511164577}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9334e1ea5719738449f164f5e6a13f1f, type: 3}
+  m_Script: {fileID: 11500000, guid: c8cffcadb386e9a4a80bc1937032695f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
-  target: {fileID: 1566340077}
-  moveSpeed: 4
-  arrivalThreshold: 0.02
+  m_EditorClassIdentifier: Assembly-CSharp::MoveInSequence
+  moveSpeed: 2
+  subject: {fileID: 0}
+  targetGameObject: {fileID: 1566340076}
+  subtractXAmount: 0
+  subtractYAmount: -0.14
+  bounceForce: 10
 --- !u!1001 &1511175621
 PrefabInstance:
   m_ObjectHideFlags: 0

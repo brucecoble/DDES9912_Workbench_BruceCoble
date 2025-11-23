@@ -44,21 +44,25 @@ public class CapsuleTriggerReturn : MonoBehaviour
         // Simple constant-speed move until within threshold
         while ((transform.position - destination).sqrMagnitude > (arrivalThreshold * arrivalThreshold))
         {
+            Debug.Log("CapsuleTriggerReturn - MoveTo - Inside WHILE()");
             Vector3 dir = (destination - transform.position).normalized;
             transform.position += dir * moveSpeed * Time.deltaTime;
             yield return null;
         }
         // Snap to destination to avoid tiny drift
         transform.position = destination;
+        Debug.Log("CapsuleTriggerReturn - MoveTo - At End now");
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("OnTriggerEnter invoke begun");
+
         // Fire only when we hit the intended target
         //if (other.transform == target || other.CompareTag("Target"))
         if (other.transform == target)
         {
-            Debug.Log("OnTriggerEnter invoke begun");
+            Debug.Log("OnTriggerEnter inside if");
             // Do any one-off logic you want at the moment of contact here
             // (e.g., play a VFX/SFX, disable something, etc.)
             // Check if the entering object has a Rigidbody
