@@ -7,6 +7,9 @@
 			{ "id": "ButtonBlack_Col4_Row1", "action": "number", "button_value": 1000 },
 			{ "id": "ButtonBlack_Col5_Row1", "action": "number", "button_value": 100 },
 			{ "id": "ButtonBlack_Col6_Row1", "action": "number", "button_value": 10 },
-			{ "id": "ButtonBlack_Col7_Row1", "action": "number", "button_value": 1 }
+			{ "id": "ButtonBlack_Col7_Row1", "action": "number", "button_value": 1 },
+			{ "id": "ButtonRed_Total", "action": "total", "button_value": 0 },
+			{ "id": "ButtonBlue_Subtotal", "action": "subtotal", "button_value": 0 },
+			{ "id": "ButtonBlue_NonAdd", "action": "nonadd", "button_value": 0 }
 		]
 }

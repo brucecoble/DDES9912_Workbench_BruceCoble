@@ -3344,10 +3344,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef0d076f84caab8409b823327dd15a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  buttonsToPress:
-  - {fileID: 1971775802}
-  - {fileID: 1804947416}
   delaytime: 0.5
+  jsonFile: {fileID: 4900000, guid: 7bb535521baa93a4c982a0bc9d59265a, type: 3}
+  numbersToMatch: 10270000e803000064000000
 --- !u!1001 &522785199
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10474,11 +10473,6 @@ Transform:
   - {fileID: 165498203}
   m_Father: {fileID: 1663940119}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1804947416 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3570442116957710329, guid: c2efaf126e5b0044fbc61b2662eae20d, type: 3}
-  m_PrefabInstance: {fileID: 962225250}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1822260673
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11147,11 +11141,6 @@ Transform:
   - {fileID: 295532065}
   m_Father: {fileID: 1380110041}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1971775802 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4838153218783918692, guid: 0a58bf007b3701f41913f89f9269ee46, type: 3}
-  m_PrefabInstance: {fileID: 940983445}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1982465373
 PrefabInstance:
   m_ObjectHideFlags: 0
