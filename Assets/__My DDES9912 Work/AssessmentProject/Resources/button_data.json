@@ -1,15 +1,29 @@
 {
 	"buttons":
 		[
+			{ "id": "ButtonRed_Total", "action": "total", "button_value": 0 },
+			{ "id": "ButtonBlue_Subtotal", "action": "subtotal", "button_value": 0 },
+			{ "id": "ButtonBlue_NonAdd", "action": "nonadd", "button_value": 0 },
 			{ "id": "ButtonWhite_Col1_Row1", "action": "number", "button_value": 1000000 },
 			{ "id": "ButtonBlack_Col2_Row1", "action": "number", "button_value": 100000 },
 			{ "id": "ButtonBlack_Col3_Row1", "action": "number", "button_value": 10000 },
 			{ "id": "ButtonBlack_Col4_Row1", "action": "number", "button_value": 1000 },
-			{ "id": "ButtonBlack_Col5_Row1", "action": "number", "button_value": 100 },
-			{ "id": "ButtonBlack_Col6_Row1", "action": "number", "button_value": 10 },
+			{ "id": "ButtonWhite_Col5_Row1", "action": "number", "button_value": 100 },
+			{ "id": "ButtonWhite_Col6_Row1", "action": "number", "button_value": 10 },
 			{ "id": "ButtonBlack_Col7_Row1", "action": "number", "button_value": 1 },
-			{ "id": "ButtonRed_Total", "action": "total", "button_value": 0 },
-			{ "id": "ButtonBlue_Subtotal", "action": "subtotal", "button_value": 0 },
-			{ "id": "ButtonBlue_NonAdd", "action": "nonadd", "button_value": 0 }
+			{ "id": "ButtonWhite_Col1_Row2", "action": "number", "button_value": 2000000 },
+			{ "id": "ButtonBlack_Col2_Row2", "action": "number", "button_value": 200000 },
+			{ "id": "ButtonBlack_Col3_Row2", "action": "number", "button_value": 20000 },
+			{ "id": "ButtonBlack_Col4_Row2", "action": "number", "button_value": 2000 },
+			{ "id": "ButtonWhite_Col5_Row2", "action": "number", "button_value": 200 },
+			{ "id": "ButtonWhite_Col6_Row2", "action": "number", "button_value": 20 },
+			{ "id": "ButtonBlack_Col7_Row2", "action": "number", "button_value": 2 },
+			{ "id": "ButtonWhite_Col1_Row3", "action": "number", "button_value": 3000000 },
+			{ "id": "ButtonBlack_Col2_Row3", "action": "number", "button_value": 300000 },
+			{ "id": "ButtonBlack_Col3_Row3", "action": "number", "button_value": 30000 },
+			{ "id": "ButtonBlack_Col4_Row3", "action": "number", "button_value": 3000 },
+			{ "id": "ButtonWhite_Col5_Row3", "action": "number", "button_value": 300 },
+			{ "id": "ButtonWhite_Col6_Row3", "action": "number", "button_value": 30 },
+			{ "id": "ButtonBlack_Col7_Row3", "action": "number", "button_value": 3 }
 		]
 }

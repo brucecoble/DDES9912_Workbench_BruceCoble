@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &6216806129880079765
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.49302197
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.03
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1070350730909333850, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.23364078
+      objectReference: {fileID: 0}
+    - target: {fileID: -1070350730909333850, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.058050252
+      objectReference: {fileID: 0}
+    - target: {fileID: 608321761475470972, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.37457153
+      objectReference: {fileID: 0}
+    - target: {fileID: 608321761475470972, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.01472249
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_Name
+      value: The Boss@Button Pushing-RightHand
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: f6553180823fc364c94560c275252750, type: 2}
+    - target: {fileID: 8169382868667117632, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.0019921504
+      objectReference: {fileID: 0}
+    - target: {fileID: 8169382868667117632, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.00082306477
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ccb15888edd89ae40aef6e72e7235ee1, type: 3}

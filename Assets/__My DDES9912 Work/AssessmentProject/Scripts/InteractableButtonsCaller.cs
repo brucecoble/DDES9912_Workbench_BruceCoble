@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
+using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -17,33 +20,13 @@ public class InteractableButtonsCaller : MonoBehaviour
 
 
     [Header("Data")]
-    [Tooltip("JSON with a 'buttons' array of { id:string, value:int }")]
+    [Tooltip("JSON in References folder with a 'buttons' array of { id:string, action:string, button_value:int }")]
     public TextAsset jsonFile;
 
     [Tooltip("Numbers you want to match to 'value' in the JSON")]
-    public List<int> numbersToMatch = new List<int> { 10000, 1000, 100 };
+    //public List<int> numbersToMatch = new List<int> { 10000, 1000, 100 };
+    public List<(string action, int button_value)> whatToPress = new List<(string, int)>();
 
-    // --- JSON models (renamed as requested) ---
-    [Serializable]
-    public class Buttons
-    {
-        public string id;   // GameObject name
-        public string action;   // GameObject action
-        public int button_value;   // Number to match
-    }
-
-    [Serializable]
-    public class ButtonsList
-    {
-        public List<Buttons> buttons;
-    }
-
-
-    // value -> GameObject name
-    private Dictionary<int, string> valueToName;
-
-    // Optionally cache found GameObjects too
-    private Dictionary<int, GameObject> valueToGO;
 
 
 
@@ -64,94 +47,129 @@ public class InteractableButtonsCaller : MonoBehaviour
     // Pull Handle to run total
     // "Nice work. Let's do another one"
 
-
-    /*
-
-    [Serializable]
-    public class MyItem // Represents a single item in the list
+    [System.Serializable]
+    public class ButtonData
     {
-        public string id;
-        public string action;
-        public int value;
+        public string id;          // string
+        public string action;      // string
+        public int button_value;   // int
     }
 
-    [Serializable]
-    public class MyItemList // Holds the list of items
+    [System.Serializable]
+    public class ButtonsList
     {
-        public List<MyItem> buttons; // The name of this field must match the JSON array key
+        public List<ButtonData> buttons;
     }
-    */
+
+    // Indexes
+    private Dictionary<int, ButtonData> _byValueNonZero;
+    private Dictionary<string, ButtonData> _zeroByAction;
+
+    void Awake()
+    {
+
+        // Populate the list
+        whatToPress.Add(("number", 30000));
+        whatToPress.Add(("number", 2000));
+        whatToPress.Add(("number", 10));
+        whatToPress.Add(("total", 0));
+        whatToPress.Add(("number", 20000));
+        whatToPress.Add(("number", 3000));
+        whatToPress.Add(("number", 30));
+        whatToPress.Add(("subtotal", 0));
+        whatToPress.Add(("number", 10));
+        whatToPress.Add(("total", 0));
+        whatToPress.Add(("number", 1000000));
+        whatToPress.Add(("number", 200000));
+        whatToPress.Add(("number", 10000));
+        whatToPress.Add(("nonadd", 3000000));
+        whatToPress.Add(("number", 10));
+        whatToPress.Add(("total", 0));
+
+        var list = JsonUtility.FromJson<ButtonsList>(jsonFile.text);
+
+        _byValueNonZero = new Dictionary<int, ButtonData>();
+        _zeroByAction = new Dictionary<string, ButtonData>(System.StringComparer.OrdinalIgnoreCase);
+
+        foreach (var b in list.buttons)
+        {
+            if (b == null) continue;
+
+            if (b.button_value != 0)
+            {
+                // If you expect uniqueness for non-zero values:
+                if (_byValueNonZero.ContainsKey(b.button_value))
+                {
+                    Debug.LogWarning($"Duplicate non-zero button_value {b.button_value} for id={b.id}. Overwriting previous entry.");
+                }
+                _byValueNonZero[b.button_value] = b;
+            }
+            else
+            {
+                // For zero values, index by action
+                if (string.IsNullOrWhiteSpace(b.action))
+                {
+                    Debug.LogWarning($"Zero button_value record missing action (id={b.id}). Skipping.");
+                    continue;
+                }
+                if (_zeroByAction.ContainsKey(b.action))
+                {
+                    Debug.LogWarning($"Duplicate zero-value action '{b.action}' encountered. Overwriting previous entry.");
+                }
+                _zeroByAction[b.action] = b;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Find by non-zero button_value. Returns true if found.
+    /// </summary>
+    public bool TryGetByButtonValue(int buttonValue, out ButtonData data)
+    {
+        if (buttonValue == 0)
+        {
+            data = null;
+            return false; // Force callers to use TryGetZeroByAction for zero.
+        }
+        return _byValueNonZero.TryGetValue(buttonValue, out data);
+    }
+
+    /// <summary>
+    /// Find a zero-value record by action (case-insensitive). Returns true if found.
+    /// </summary>
+    public bool TryGetZeroByAction(string action, out ButtonData data)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            data = null;
+            return false;
+        }
+        return _zeroByAction.TryGetValue(action.Trim(), out data);
+    }
+
+    /// <summary>
+    /// Convenience method: if buttonValue != 0, search by value; if 0, search by action.
+    /// Returns true if found.
+    /// </summary>
+    public bool TryFind(int buttonValue, string actionForZero, out ButtonData data)
+    {
+        if (buttonValue != 0)
+        {
+            return TryGetByButtonValue(buttonValue, out data);
+        }
+        return TryGetZeroByAction(actionForZero, out data);
+    }
 
 
     private IEnumerator Start()
     {
-
-        /*
-        if (jsonFile != null)
-        {
-            string jsonString = jsonFile.text;
-            MyItemList data = JsonUtility.FromJson<MyItemList>(jsonString);
-
-            // Accessing items from the list
-            if (data != null && data.buttons != null && data.buttons.Count > 0)
-            {
-                // Select the first item
-                MyItem firstItem = data.buttons[0];
-                Debug.Log($"First item: ID={firstItem.id}, Value={firstItem.value}");
-
-                // Select an item by index (e.g., the third item)
-                if (data.buttons.Count > 2)
-                {
-                    MyItem thirdItem = data.buttons[2];
-                    Debug.Log($"Third item: ID={thirdItem.id}, Value={thirdItem.value}");
-                }
-
-                // Iterate through the list to find a specific item
-                foreach (MyItem item in data.buttons)
-                {
-                    if (item.id == "ButtonBlack_Col2_Row1")
-                    {
-                        Debug.Log($"Found specific item: ID={item.id}, Value={item.value}");
-                        break; // Exit the loop once found
-                    }
-                }
-            }
-        }
-        else
-        {
-            Debug.LogError("JSON file not assigned!");
-        }
-        */
-
-        if (jsonFile == null)
-        {
-            Debug.LogError("No JSON file assigned.");
-            //return;
-        }
-
-        var list = JsonUtility.FromJson<ButtonsList>(jsonFile.text);
-        if (list == null || list.buttons == null)
-        {
-            Debug.LogError("JSON couldn't be parsed or has no 'buttons' array.");
-            //return;
-        }
-
-        valueToName = new Dictionary<int, string>(list.buttons.Count);
-        foreach (var b in list.buttons)
-        {
-            // last-one-wins; change if you want to warn on duplicates
-            valueToName[b.button_value] = b.id;
-        }
-
-
-        //Debug.Log("Starting CapsuleTriggerReturn");
 
         // Step 1: Loop through the list of number buttons and press each one
         yield return StartCoroutine(PressEachButton());
 
         // Step 2: A little pause before we pull the handle
         yield return new WaitForSeconds(delaytime);
-
+        /*
         // Step 3: Pull the handle
         yield return StartCoroutine(PullTheHandle());
 
@@ -160,154 +178,88 @@ public class InteractableButtonsCaller : MonoBehaviour
 
         // Step 5: Mow we release the handle
         yield return StartCoroutine(ReleaseTheHandle());
+        */
     }
-    /*
+
     IEnumerator PressEachButton()
     {
-        foreach (GameObject go in buttonsToPress)
+        // Loo through tuples of instructions
+        foreach (var t in whatToPress)
         {
-            if (go != null)
+            if (t.action == "number")
             {
+                // Do number action
+                // Non-zero button_value → find by value (because values are unique)
+                if (TryGetByButtonValue(t.button_value, out var nonZero))
+                {
+                    Debug.Log($"Found by value 42 → id={nonZero.id}, action={nonZero.action}, button_value={nonZero.button_value}");
 
-                ButtonManager script = go.GetComponent<ButtonManager>();
-                script.PressButton();
+                    var go = GameObject.Find(nonZero.id); // okay for setup; avoid every-frame usage
+                    if (go != null)
+                    {
+                        ButtonManager script = go.GetComponent<ButtonManager>();
+                        script.PressButton();
 
-                // Find a GameObject named "MyObject" in the scene
-                GameObject sfxGo = GameObject.Find("ButtonPress");
-                audioSource = sfxGo.GetComponent<AudioSource>();
-                audioSource.Play();
+                        // Find a GameObject named "MyObject" in the scene
+                        GameObject sfxGo = GameObject.Find("ButtonPress");
+                        audioSource = sfxGo.GetComponent<AudioSource>();
+                        audioSource.Play();
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Record found for value {t.button_value} → id \"{nonZero.id}\", but no GameObject with that name exists in the scene.");
+                    }
+                }
 
                 yield return new WaitForSeconds(delaytime);
 
-            }
-        }
-    }
-    */
-
-    /*
-
-    GameObject FindButtonWithValue(float value)
-    {
-        GameObject[] numberButtons = GameObject.FindGameObjectsWithTag("NumberBtn");
-
-        foreach (GameObject btn in numberButtons)
-        {
-            ButtonManager buttonScript = btn.GetComponent<ButtonManager>();
-            if (buttonScript != null && Mathf.Approximately(buttonScript.buttonValue, value))
-            {
-                return btn;
-            }
-        }
-
-        return null; // Not found
-    }
-
-
-    IEnumerator PressEachButton()
-    {
-        foreach (float targetValue in numbersToPress)
-        {
-            GameObject go = FindButtonWithValue(targetValue);
-
-            if (go != null)
-            {
-                Debug.Log("Found GameObject: " + go.name);
-                ButtonManager script = go.GetComponent<ButtonManager>();
-                script.PressButton();
-
-                // Find a GameObject named "MyObject" in the scene
-                GameObject sfxGo = GameObject.Find("ButtonPress");
-                audioSource = sfxGo.GetComponent<AudioSource>();
-                audioSource.Play();
 
             }
             else
             {
-                Debug.Log("No GameObject found with value " + targetValue);
-            }
-
-            yield return new WaitForSeconds(delaytime);
-
-        }
-    }
-    */
-
-    IEnumerator PressEachButton()
-    {
-        valueToGO = new Dictionary<int, GameObject>(numbersToMatch.Count);
-
-        foreach (var number in numbersToMatch)
-        {
-            if (!valueToName.TryGetValue(number, out var goName) || string.IsNullOrEmpty(goName))
-            {
-                Debug.LogWarning($"No record for value {number}.");
-                continue;
-            }
-
-            var go = GameObject.Find(goName); // okay for setup; avoid every-frame usage
-            if (go != null)
-            {
-                valueToGO[number] = go;
-                Debug.Log($"Matched value {number} → id \"{goName}\" → GameObject found: {go.name}");
-                // TODO: use 'go' as needed
-                ButtonManager script = go.GetComponent<ButtonManager>();
-                script.PressButton();
-
-                // Find a GameObject named "MyObject" in the scene
-                GameObject sfxGo = GameObject.Find("ButtonPress");
-                audioSource = sfxGo.GetComponent<AudioSource>();
-                audioSource.Play();
-            }
-            else
-            {
-                Debug.LogWarning($"Record found for value {number} → id \"{goName}\", but no GameObject with that name exists in the scene.");
-            }
-        }
-        yield return new WaitForSeconds(delaytime);
-        /*
-        foreach (float targetValue in numbersToPress)
-        {
-
-            // Accessing items from the JSON data list
-            if (data != null && data.buttons != null && data.buttons.Count > 0)
-            {
-
-                // Iterate through the list to find a specific item
-                foreach (MyItem item in data.buttons)
+                // Do command action (total, subtotal or non add)
+                // Zero button_value → find by action (because the button_value is zero)
+                if (TryGetZeroByAction(t.action, out var zeroByAction))
                 {
-                    if (item.value == targetValue)
+                    Debug.Log($"Found zero-value by action 'Fire' → id={zeroByAction.id}, value={zeroByAction.button_value}, button_value={zeroByAction.button_value}");
+
+                    var go = GameObject.Find(zeroByAction.id); // okay for setup; avoid every-frame usage
+                    if (go != null)
                     {
-                        Debug.Log($"Found specific item: ID={item.id}, Value={item.value}");
-                        GameObject go = GameObject.Find(item.id);
+                        ButtonManager script = go.GetComponent<ButtonManager>();
+                        script.PressButton();
 
-                        if (go != null)
-                        {
-                            Debug.Log("Found GameObject: " + go.name);
-                            ButtonManager script = go.GetComponent<ButtonManager>();
-                            script.PressButton();
-
-                            // Find a GameObject named "MyObject" in the scene
-                            GameObject sfxGo = GameObject.Find("ButtonPress");
-                            audioSource = sfxGo.GetComponent<AudioSource>();
-                            audioSource.Play();
-
-                        }
-                        else
-                        {
-                            Debug.Log("No GameObject found with value " + targetValue);
-                        }
-
-                        break; // Exit the loop once found
-
+                        // Find a GameObject named "MyObject" in the scene
+                        GameObject sfxGo = GameObject.Find("ButtonPress");
+                        audioSource = sfxGo.GetComponent<AudioSource>();
+                        audioSource.Play();
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Record found for value {t.button_value} → id \"{zeroByAction.id}\", but no GameObject with that name exists in the scene.");
                     }
                 }
+
+                yield return new WaitForSeconds(delaytime);
+
+
+
+                // Now pull the handle
+                // Step 3: Pull the handle
+                yield return StartCoroutine(PullTheHandle());
+
+                // Step 4: A little pause before we let go
+                yield return new WaitForSeconds(delaytime);
+
+                // Step 5: Mow we release the handle
+                yield return StartCoroutine(ReleaseTheHandle());
+
             }
 
 
             yield return new WaitForSeconds(delaytime);
-
         }
-        */
+        
     }
 
     IEnumerator PullTheHandle()
