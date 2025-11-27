@@ -10,7 +10,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.24",
+      "version": "1.8.26",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -366,6 +366,13 @@
         "com.unity.xr.legacyinputhelpers": "2.1.2"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.z3lx.acg-importer": {
+      "version": "https://github.com/z3lx/acg-importer.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d7af21b84b7b2522e3c1152fc0e63e07569c4f13"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

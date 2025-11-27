@@ -11,24 +11,16 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class InteractableButtonsCaller : MonoBehaviour
 {
-    //public TextAsset jsonFile; // Assign your JSON file (as TextAsset) in the Inspector
-    //public List<GameObject> buttonsToPress; // List of all the buttons we want to press
-    //public List<float> numbersToPress; // List of all the numbers to press
     private InteractableGeneral buttonPress; // The interactible general script of the object in our list
     private AudioSource audioSource; // For the sound effects
     public float delaytime = 0.5f; // Set the delay time to use between actions
-
 
     [Header("Data")]
     [Tooltip("JSON in References folder with a 'buttons' array of { id:string, action:string, button_value:int }")]
     public TextAsset jsonFile;
 
-    [Tooltip("Numbers you want to match to 'value' in the JSON")]
-    //public List<int> numbersToMatch = new List<int> { 10000, 1000, 100 };
+    [Tooltip("Tuple of action & numbers to use to find the button object in the JSON")]
     public List<(string action, int button_value)> whatToPress = new List<(string, int)>();
-
-
-
 
     // Command script from The Boss
     // "Add these numbers"
@@ -163,22 +155,8 @@ public class InteractableButtonsCaller : MonoBehaviour
 
     private IEnumerator Start()
     {
-
         // Step 1: Loop through the list of number buttons and press each one
         yield return StartCoroutine(PressEachButton());
-
-        // Step 2: A little pause before we pull the handle
-        yield return new WaitForSeconds(delaytime);
-        /*
-        // Step 3: Pull the handle
-        yield return StartCoroutine(PullTheHandle());
-
-        // Step 4: A little pause before we let go
-        yield return new WaitForSeconds(delaytime);
-
-        // Step 5: Mow we release the handle
-        yield return StartCoroutine(ReleaseTheHandle());
-        */
     }
 
     IEnumerator PressEachButton()
@@ -229,7 +207,7 @@ public class InteractableButtonsCaller : MonoBehaviour
                         ButtonManager script = go.GetComponent<ButtonManager>();
                         script.PressButton();
 
-                        // Find a GameObject named "MyObject" in the scene
+                        // Find an SFX GameObject named "ButtonPress" in the scene and play the sound
                         GameObject sfxGo = GameObject.Find("ButtonPress");
                         audioSource = sfxGo.GetComponent<AudioSource>();
                         audioSource.Play();
@@ -240,23 +218,17 @@ public class InteractableButtonsCaller : MonoBehaviour
                     }
                 }
 
+                // Pause then pull the handle
                 yield return new WaitForSeconds(delaytime);
-
-
-
-                // Now pull the handle
-                // Step 3: Pull the handle
                 yield return StartCoroutine(PullTheHandle());
 
-                // Step 4: A little pause before we let go
+                // Pause then rlease the handle
                 yield return new WaitForSeconds(delaytime);
-
-                // Step 5: Mow we release the handle
                 yield return StartCoroutine(ReleaseTheHandle());
 
             }
 
-
+            // Pause then move to the next button preess (if there is one)
             yield return new WaitForSeconds(delaytime);
         }
         
@@ -264,13 +236,13 @@ public class InteractableButtonsCaller : MonoBehaviour
 
     IEnumerator PullTheHandle()
     {
-        // Find a GameObject named "MyObject" in the scene
-        GameObject handleRig = GameObject.Find("Handle Rig");
+        // Find a GameObject named "HandleRig" (the main handle) in the scene & pull the handle
+        GameObject handleRig = GameObject.Find("HandleRig");
 
         HandleManager script = handleRig.GetComponent<HandleManager>();
         script.PullHandle();
 
-        // Find a GameObject named "MyObject" in the scene
+        // Find a SFX GameObject named "HandlePull" in the scene & play the sound
         GameObject sfxGo = GameObject.Find("HandlePull");
         audioSource = sfxGo.GetComponent<AudioSource>();
         audioSource.Play();
@@ -281,13 +253,13 @@ public class InteractableButtonsCaller : MonoBehaviour
 
     IEnumerator ReleaseTheHandle()
     {
-        // Find a GameObject named "MyObject" in the scene
-        GameObject handleRig = GameObject.Find("Handle Rig");
+        // Find a GameObject named "HandleRig" (the main handle) in the scene & release the handle
+        GameObject handleRig = GameObject.Find("HandleRig");
 
         HandleManager script = handleRig.GetComponent<HandleManager>();
         script.ReleaseHandle();
 
-        // Find a GameObject named "MyObject" in the scene
+        // Find a SFX GameObject named "HandlePull" in the scene & play the sound
         GameObject sfxGo = GameObject.Find("HandlePull");
         audioSource = sfxGo.GetComponent<AudioSource>();
         audioSource.Play();
