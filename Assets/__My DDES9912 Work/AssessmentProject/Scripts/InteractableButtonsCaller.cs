@@ -156,7 +156,7 @@ public class InteractableButtonsCaller : MonoBehaviour
     private IEnumerator Start()
     {
         // Step 1: Loop through the list of number buttons and press each one
-        yield return StartCoroutine(PressEachButton());
+        yield return StartCoroutine(PressEachButton());    
     }
 
     IEnumerator PressEachButton()
@@ -164,6 +164,17 @@ public class InteractableButtonsCaller : MonoBehaviour
         // Loo through tuples of instructions
         foreach (var t in whatToPress)
         {
+
+            // Get the BossRig BossWalk script so we can call it later
+            var bossObject = GameObject.Find("BossRig");
+            if (bossObject != null)
+            {
+                BossWalk bwScript = bossObject.GetComponent<BossWalk>();
+                bwScript.MoveToRandomPosition();
+            }
+
+
+
             if (t.action == "number")
             {
                 // Do number action
