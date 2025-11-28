@@ -367,13 +367,6 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.z3lx.acg-importer": {
-      "version": "https://github.com/z3lx/acg-importer.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "d7af21b84b7b2522e3c1152fc0e63e07569c4f13"
-    },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,
