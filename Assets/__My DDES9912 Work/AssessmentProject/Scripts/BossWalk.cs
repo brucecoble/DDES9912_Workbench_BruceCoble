@@ -1,3 +1,99 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+[RequireComponent(typeof(NavMeshAgent))]
+public class BossWalk : MonoBehaviour
+{
+
+    [Header("Scene References")]
+    public NavMeshAgent theBoss;
+    public Transform centerTarget;          // Object in the middle of the room
+    public List<Transform> positions;       // Possible positions around the room
+
+    [Header("Animation")]
+    public Animator animator;
+
+    // State names in your Animator (Base Layer)
+    public string walkingState = "Walking";
+    public string stopWalkingState = "StopWalking";
+    public string talkingState = "Talking";
+    public string stopTalkingState = "StopTalking";
+
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        theBoss = GetComponent<NavMeshAgent>();
+    }
+
+    void Update()
+    {
+        // ARRIVED?
+        if (!theBoss.pathPending &&
+            theBoss.remainingDistance <= theBoss.stoppingDistance &&
+            theBoss.velocity.sqrMagnitude < 0.01f)   // basically not moving
+        {
+            
+            /*
+            if (rotateRoutine == null && centerTarget != null)
+            {
+                if (arrivalRoutine == null)
+                    arrivalRoutine = StartCoroutine(OnArrivedAtDestination());
+
+                if (rotateRoutine == null)
+                    rotateRoutine = StartCoroutine(RotateToCenter());
+            }
+        }
+        else
+        {
+            // MOVING
+            //RotateInMoveDirection();
+            //PlayWalkingState();
+            */
+        }
+    }
+
+
+
+
+    public void MoveToRandomPosition()
+    {
+        if (positions == null || positions.Count == 0)
+        {
+            Debug.LogWarning("No positions assigned on RandomMover.");
+            return;
+        }
+
+        /*
+        // Stop any current arrival / talking behaviour
+        if (arrivalRoutine != null)
+        {
+            StopCoroutine(arrivalRoutine);
+            arrivalRoutine = null;
+        }
+
+        if (rotateRoutine != null)
+        {
+            StopCoroutine(rotateRoutine);
+            rotateRoutine = null;
+        }
+        */
+
+        //StopTalkingState();   // optional: cleanly end Talking / audio
+
+        // Pick a random position and set as NavMesh destination
+        Transform randomPos = positions[Random.Range(0, positions.Count)];
+        theBoss.SetDestination(randomPos.position);
+
+        // Start walking animation immediately
+        //PlayWalkingState();
+    }
+
+
+}
+
+/*
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,14 +137,13 @@ public class BossWalk : MonoBehaviour
 
     void Update()
     {
+        // ARRIVED?
         if (!agent.pathPending &&
             agent.remainingDistance <= agent.stoppingDistance &&
-            !agent.hasPath)
+            agent.velocity.sqrMagnitude < 0.01f)   // basically not moving
         {
-            // We have arrived
             if (rotateRoutine == null && centerTarget != null)
             {
-                // Start arrival behavior once
                 if (arrivalRoutine == null)
                     arrivalRoutine = StartCoroutine(OnArrivedAtDestination());
 
@@ -58,11 +153,12 @@ public class BossWalk : MonoBehaviour
         }
         else
         {
-            // While moving
+            // MOVING
             RotateInMoveDirection();
             PlayWalkingState();
         }
     }
+
 
     /// <summary>
     /// Call this to send the character to a random position.
@@ -74,7 +170,7 @@ public class BossWalk : MonoBehaviour
             Debug.LogWarning("No positions assigned on RandomMover.");
             return;
         }
-
+        
         // Stop any current arrival / talking behaviour
         if (arrivalRoutine != null)
         {
@@ -87,7 +183,7 @@ public class BossWalk : MonoBehaviour
             StopCoroutine(rotateRoutine);
             rotateRoutine = null;
         }
-
+        
         StopTalkingState();   // optional: cleanly end Talking / audio
 
         // Pick a random position and set as NavMesh destination
@@ -212,7 +308,7 @@ public class BossWalk : MonoBehaviour
         rotateRoutine = null;
     }
 }
-
+*/
 
 /*
 

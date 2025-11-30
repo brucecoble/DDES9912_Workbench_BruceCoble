@@ -13,7 +13,7 @@ public class InteractableButtonsCaller : MonoBehaviour
 {
     private InteractableGeneral buttonPress; // The interactible general script of the object in our list
     private AudioSource audioSource; // For the sound effects
-    public float delaytime = 0.5f; // Set the delay time to use between actions
+    public float delaytime = 3f; // Set the delay time to use between actions
 
     [Header("Data")]
     [Tooltip("JSON in References folder with a 'buttons' array of { id:string, action:string, button_value:int }")]
@@ -42,9 +42,10 @@ public class InteractableButtonsCaller : MonoBehaviour
     [System.Serializable]
     public class ButtonData
     {
-        public string id;          // string
-        public string action;      // string
-        public int button_value;   // int
+        public string id;           // string
+        public string action;       // string
+        public int button_value;    // int
+        public string audio;        // string
     }
 
     [System.Serializable]
@@ -61,22 +62,32 @@ public class InteractableButtonsCaller : MonoBehaviour
     {
 
         // Populate the list
-        whatToPress.Add(("number", 30000));
-        whatToPress.Add(("number", 2000));
-        whatToPress.Add(("number", 10));
-        whatToPress.Add(("total", 0));
-        whatToPress.Add(("number", 20000));
-        whatToPress.Add(("number", 3000));
-        whatToPress.Add(("number", 30));
-        whatToPress.Add(("subtotal", 0));
-        whatToPress.Add(("number", 10));
-        whatToPress.Add(("total", 0));
+        whatToPress.Add(("number",   30000));
+        whatToPress.Add(("number",    2000));
+        whatToPress.Add(("number",      10));
+        whatToPress.Add(("addnumber",   0));
+        whatToPress.Add(("number",   20000));
+        whatToPress.Add(("number",    3000));
+        whatToPress.Add(("number",      30));
+        whatToPress.Add(("addnumber",   0));
         whatToPress.Add(("number", 1000000));
-        whatToPress.Add(("number", 200000));
-        whatToPress.Add(("number", 10000));
-        whatToPress.Add(("nonadd", 3000000));
-        whatToPress.Add(("number", 10));
-        whatToPress.Add(("total", 0));
+        whatToPress.Add(("number",  200000));
+        whatToPress.Add(("number",   10000));
+        whatToPress.Add(("total",        0));
+
+        whatToPress.Add(("number",   20000));
+        whatToPress.Add(("number",    3000));
+        whatToPress.Add(("number",      30));
+        whatToPress.Add(("subtotal",     0));
+        whatToPress.Add(("number",      10));
+        whatToPress.Add(("total",        0));
+
+        whatToPress.Add(("number", 1000000));
+        whatToPress.Add(("number",  200000));
+        whatToPress.Add(("number",   10000));
+        whatToPress.Add(("nonadd",       0));
+        whatToPress.Add(("number",   30000));
+        whatToPress.Add(("total",        0));
 
         var list = JsonUtility.FromJson<ButtonsList>(jsonFile.text);
 
@@ -161,19 +172,18 @@ public class InteractableButtonsCaller : MonoBehaviour
 
     IEnumerator PressEachButton()
     {
+        // Get the BossRig BossWalk script so we can call it later
+        var bossObject = GameObject.Find("BossRig");
+        if (bossObject != null)
+        {
+            BossWalk bwScript = bossObject.GetComponent<BossWalk>();
+            bwScript.MoveToRandomPosition();
+        }
+
         // Loo through tuples of instructions
         foreach (var t in whatToPress)
         {
-
-            // Get the BossRig BossWalk script so we can call it later
-            var bossObject = GameObject.Find("BossRig");
-            if (bossObject != null)
-            {
-                BossWalk bwScript = bossObject.GetComponent<BossWalk>();
-                bwScript.MoveToRandomPosition();
-            }
-
-
+            bool _is_total = false;
 
             if (t.action == "number")
             {
@@ -183,13 +193,19 @@ public class InteractableButtonsCaller : MonoBehaviour
                 {
                     Debug.Log($"Found by value 42 → id={nonZero.id}, action={nonZero.action}, button_value={nonZero.button_value}");
 
+                    // Play the boss audio for the selected number
+                    GameObject sfxNumberGo = GameObject.Find(nonZero.audio);
+                    audioSource = sfxNumberGo.GetComponent<AudioSource>();
+                    audioSource.Play();
+                    yield return new WaitForSeconds(delaytime);
+
                     var go = GameObject.Find(nonZero.id); // okay for setup; avoid every-frame usage
                     if (go != null)
                     {
                         ButtonManager script = go.GetComponent<ButtonManager>();
                         script.PressButton();
 
-                        // Find a GameObject named "MyObject" in the scene
+                        // Find a GameObject named "ButtonPress" in the scene
                         GameObject sfxGo = GameObject.Find("ButtonPress");
                         audioSource = sfxGo.GetComponent<AudioSource>();
                         audioSource.Play();
@@ -198,6 +214,7 @@ public class InteractableButtonsCaller : MonoBehaviour
                     {
                         Debug.LogWarning($"Record found for value {t.button_value} → id \"{nonZero.id}\", but no GameObject with that name exists in the scene.");
                     }
+                    yield return new WaitForSeconds(delaytime);
                 }
 
                 yield return new WaitForSeconds(delaytime);
@@ -210,18 +227,46 @@ public class InteractableButtonsCaller : MonoBehaviour
                 // Zero button_value → find by action (because the button_value is zero)
                 if (TryGetZeroByAction(t.action, out var zeroByAction))
                 {
-                    Debug.Log($"Found zero-value by action 'Fire' → id={zeroByAction.id}, value={zeroByAction.button_value}, button_value={zeroByAction.button_value}");
+                    Debug.Log($"Found zero-value by action → id={zeroByAction.id}, value={zeroByAction.button_value}, button_value={zeroByAction.button_value}");
+
+                    // Play the boss audio for the selected action command
+                    GameObject sfxNumberGo = GameObject.Find(zeroByAction.audio);
+                    audioSource = sfxNumberGo.GetComponent<AudioSource>();
+                    audioSource.Play();
+                    yield return new WaitForSeconds(delaytime * 2);
 
                     var go = GameObject.Find(zeroByAction.id); // okay for setup; avoid every-frame usage
                     if (go != null)
                     {
-                        ButtonManager script = go.GetComponent<ButtonManager>();
-                        script.PressButton();
+                        if (zeroByAction.action == "addnumber")
+                        {
+                            // We are only adding a number, so just pull the handle
+                            // Pause then pull the handle
+                            yield return new WaitForSeconds(delaytime);
+                            yield return StartCoroutine(PullTheHandle());
 
-                        // Find an SFX GameObject named "ButtonPress" in the scene and play the sound
-                        GameObject sfxGo = GameObject.Find("ButtonPress");
-                        audioSource = sfxGo.GetComponent<AudioSource>();
-                        audioSource.Play();
+                            // Pause then rlease the handle
+                            yield return new WaitForSeconds(delaytime);
+                            yield return StartCoroutine(ReleaseTheHandle());
+                        }
+                        else
+                        {
+                            // We are doing an action command that is not "addnumber"
+                            ButtonManager script = go.GetComponent<ButtonManager>();
+                            script.PressButton();
+
+                            // Find an SFX GameObject named "ButtonPress" in the scene and play the sound
+                            GameObject sfxGo = GameObject.Find("ButtonPress");
+                            audioSource = sfxGo.GetComponent<AudioSource>();
+                            audioSource.Play();
+
+                            if (zeroByAction.action == "total")
+                            {
+                                // Set this to true so we can trigger an extra audio line 
+                                _is_total = true;
+                            }
+                        }
+                        yield return new WaitForSeconds(delaytime);
                     }
                     else
                     {
@@ -236,6 +281,17 @@ public class InteractableButtonsCaller : MonoBehaviour
                 // Pause then rlease the handle
                 yield return new WaitForSeconds(delaytime);
                 yield return StartCoroutine(ReleaseTheHandle());
+
+                if (_is_total == true)
+                {
+                    // Play the boss audio for the letsgoagain action command
+                    GameObject sfxLetsGoAgain = GameObject.Find("letsgoagain");
+                    audioSource = sfxLetsGoAgain.GetComponent<AudioSource>();
+                    audioSource.Play();
+                    yield return new WaitForSeconds(delaytime * 3);
+
+                    _is_total = false;
+                }
 
             }
 
