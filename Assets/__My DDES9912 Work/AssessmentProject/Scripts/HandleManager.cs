@@ -264,27 +264,27 @@ public class HandleManager : MonoBehaviour
             return paperPrintoutString;
 
         }
-        /*
         else if (action == "NonAdd")
         {
             // 26/11/25 - I added this section but previously it was not there & everything went through to the else section
             // but it came up with an error...with this active it prints the N on the next number enter, not the correct one...
+            // replacing with static text display for now.
             
             UnityEngine.Debug.Log("FormatPaperPrintout() - action is NonTotal so adding valuesEntered of " + listString + " plus total" + runningTotalString);
 
             // Now loop through them all to create a string
-            foreach (string value in paperPrintoutValues)
-            {
-                paperPrintoutString += value + '\n';
-            }
+            //foreach (string value in paperPrintoutValues)
+            //{
+            //    paperPrintoutString += value + '\n';
+            //}
 
             // Now add nontotal line
             //paperPrintoutString += '\n' + "---------" + '\n' + "N " + runningTotalString;
-            UnityEngine.Debug.Log("FormatPaperPrintout() - action==Total finally returned: " + paperPrintoutString);
+            //UnityEngine.Debug.Log("FormatPaperPrintout() - action==NonAdd finally returned: " + paperPrintoutString);
 
-            return paperPrintoutString;
+            return paperPrintoutString = "DO NOT ADD";
 
-        } */
+        }
         else
         {
             UnityEngine.Debug.Log("FormatPaperPrintout() - nothing to print.............................");
@@ -348,8 +348,7 @@ public class HandleManager : MonoBehaviour
             }
         }        
         
-        // Safely add value to public list of entered string values in HandleManager (avoiding multithreading error)
-        
+        // Safely add value to public list of entered string values in HandleManager (avoiding multithreading error)        
         lock (listlock2)
         {
             // We don't want to print zeros

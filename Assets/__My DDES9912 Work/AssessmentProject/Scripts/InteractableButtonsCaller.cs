@@ -15,6 +15,8 @@ public class InteractableButtonsCaller : MonoBehaviour
     private AudioSource audioSource; // For the sound effects
     public float delaytime = 3f; // Set the delay time to use between actions
 
+    public BossWalk bossWalk;
+
     [Header("Data")]
     [Tooltip("JSON in References folder with a 'buttons' array of { id:string, action:string, button_value:int }")]
     public TextAsset jsonFile;
@@ -167,23 +169,32 @@ public class InteractableButtonsCaller : MonoBehaviour
     private IEnumerator Start()
     {
         // Step 1: Loop through the list of number buttons and press each one
-        yield return StartCoroutine(PressEachButton());    
+        yield return StartCoroutine(PressEachButton());
+
+        // Make sure the typist stops typing at the end.
+        bossWalk.TypistStopTyping();
     }
 
     IEnumerator PressEachButton()
     {
-        // Get the BossRig BossWalk script so we can call it later
-        var bossObject = GameObject.Find("BossRig");
-        if (bossObject != null)
-        {
-            BossWalk bwScript = bossObject.GetComponent<BossWalk>();
-            bwScript.MoveToRandomPosition();
-        }
+        // Make The Boss talk each time a button is pressed
+        bossWalk.TypistTyping();
+        bossWalk.BossTalking();
+
+        yield return new WaitForSeconds(delaytime);
+
+        // Make boss walk to a random spot
+        bossWalk.MoveToRandomPosition();
+
 
         // Loo through tuples of instructions
         foreach (var t in whatToPress)
         {
             bool _is_total = false;
+
+            // Make The Boss talk each time a button is pressed
+            bossWalk.TypistTyping();
+            bossWalk.BossTalking();
 
             if (t.action == "number")
             {
@@ -229,6 +240,8 @@ public class InteractableButtonsCaller : MonoBehaviour
                 {
                     Debug.Log($"Found zero-value by action → id={zeroByAction.id}, value={zeroByAction.button_value}, button_value={zeroByAction.button_value}");
 
+
+
                     // Play the boss audio for the selected action command
                     GameObject sfxNumberGo = GameObject.Find(zeroByAction.audio);
                     audioSource = sfxNumberGo.GetComponent<AudioSource>();
@@ -264,6 +277,10 @@ public class InteractableButtonsCaller : MonoBehaviour
                             {
                                 // Set this to true so we can trigger an extra audio line 
                                 _is_total = true;
+
+                                // Make boss walk to a random spot
+                                //bossWalk.MoveToRandomPosition();
+
                             }
                         }
                         yield return new WaitForSeconds(delaytime);
@@ -278,12 +295,16 @@ public class InteractableButtonsCaller : MonoBehaviour
                 yield return new WaitForSeconds(delaytime);
                 yield return StartCoroutine(PullTheHandle());
 
-                // Pause then rlease the handle
+                // Pause then release the handle
                 yield return new WaitForSeconds(delaytime);
                 yield return StartCoroutine(ReleaseTheHandle());
 
+                // Finished adding a number so move the boss to a new point and start a new number
                 if (_is_total == true)
                 {
+                    // Make boss walk to a random spot
+                    bossWalk.MoveToRandomPosition();
+
                     // Play the boss audio for the letsgoagain action command
                     GameObject sfxLetsGoAgain = GameObject.Find("letsgoagain");
                     audioSource = sfxLetsGoAgain.GetComponent<AudioSource>();
@@ -303,6 +324,8 @@ public class InteractableButtonsCaller : MonoBehaviour
 
     IEnumerator PullTheHandle()
     {
+        bossWalk.TypistTyping();
+
         // Find a GameObject named "HandleRig" (the main handle) in the scene & pull the handle
         GameObject handleRig = GameObject.Find("HandleRig");
 
