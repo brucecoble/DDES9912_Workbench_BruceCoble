@@ -18,28 +18,11 @@ public class InteractableButtonsCaller : MonoBehaviour
     public BossWalk bossWalk;
 
     [Header("Data")]
-    [Tooltip("JSON in References folder with a 'buttons' array of { id:string, action:string, button_value:int }")]
+    [Tooltip("JSON in References folder with a 'buttons' array of { id:string, action:string, button_value:int , audio:string}")]
     public TextAsset jsonFile;
 
     [Tooltip("Tuple of action & numbers to use to find the button object in the JSON")]
     public List<(string action, int button_value)> whatToPress = new List<(string, int)>();
-
-    // Command script from The Boss
-    // "Add these numbers"
-    // 10500, 349, 250000
-    // Now give me the total
-    // value=10000, action="number"
-    // value=500, action="number"
-    // Pull Handle to add
-    // value=300, action="number"
-    // value=40, action="number"
-    // value=9, action="number"
-    // Pull Handle to add
-    // value=200000, action="number"
-    // value=50000, action="number"
-    // value=0, action="total"
-    // Pull Handle to run total
-    // "Nice work. Let's do another one"
 
     [System.Serializable]
     public class ButtonData
@@ -96,6 +79,9 @@ public class InteractableButtonsCaller : MonoBehaviour
         _byValueNonZero = new Dictionary<int, ButtonData>();
         _zeroByAction = new Dictionary<string, ButtonData>(System.StringComparer.OrdinalIgnoreCase);
 
+        
+        // Get either the number value or the action, based on whether the button_value is zero
+        // Only actions have a value of zero...the rest are numbers
         foreach (var b in list.buttons)
         {
             if (b == null) continue;
@@ -126,9 +112,7 @@ public class InteractableButtonsCaller : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Find by non-zero button_value. Returns true if found.
-    /// </summary>
+    // Find by non-zero button_value. Returns true if found.
     public bool TryGetByButtonValue(int buttonValue, out ButtonData data)
     {
         if (buttonValue == 0)
@@ -139,9 +123,7 @@ public class InteractableButtonsCaller : MonoBehaviour
         return _byValueNonZero.TryGetValue(buttonValue, out data);
     }
 
-    /// <summary>
-    /// Find a zero-value record by action (case-insensitive). Returns true if found.
-    /// </summary>
+    // Find a zero-value record by action (case-insensitive). Returns true if found.
     public bool TryGetZeroByAction(string action, out ButtonData data)
     {
         if (string.IsNullOrWhiteSpace(action))
@@ -152,10 +134,8 @@ public class InteractableButtonsCaller : MonoBehaviour
         return _zeroByAction.TryGetValue(action.Trim(), out data);
     }
 
-    /// <summary>
-    /// Convenience method: if buttonValue != 0, search by value; if 0, search by action.
-    /// Returns true if found.
-    /// </summary>
+    // Convenience method: if buttonValue != 0, search by value; if 0, search by action.
+    // Returns true if found.
     public bool TryFind(int buttonValue, string actionForZero, out ButtonData data)
     {
         if (buttonValue != 0)
@@ -210,7 +190,7 @@ public class InteractableButtonsCaller : MonoBehaviour
                     audioSource.Play();
                     yield return new WaitForSeconds(delaytime);
 
-                    var go = GameObject.Find(nonZero.id); // okay for setup; avoid every-frame usage
+                    var go = GameObject.Find(nonZero.id); 
                     if (go != null)
                     {
                         ButtonManager script = go.GetComponent<ButtonManager>();
@@ -230,7 +210,6 @@ public class InteractableButtonsCaller : MonoBehaviour
 
                 yield return new WaitForSeconds(delaytime);
 
-
             }
             else
             {
@@ -240,15 +219,13 @@ public class InteractableButtonsCaller : MonoBehaviour
                 {
                     Debug.Log($"Found zero-value by action → id={zeroByAction.id}, value={zeroByAction.button_value}, button_value={zeroByAction.button_value}");
 
-
-
                     // Play the boss audio for the selected action command
                     GameObject sfxNumberGo = GameObject.Find(zeroByAction.audio);
                     audioSource = sfxNumberGo.GetComponent<AudioSource>();
                     audioSource.Play();
                     yield return new WaitForSeconds(delaytime * 2);
 
-                    var go = GameObject.Find(zeroByAction.id); // okay for setup; avoid every-frame usage
+                    var go = GameObject.Find(zeroByAction.id); 
                     if (go != null)
                     {
                         if (zeroByAction.action == "addnumber")
@@ -277,10 +254,6 @@ public class InteractableButtonsCaller : MonoBehaviour
                             {
                                 // Set this to true so we can trigger an extra audio line 
                                 _is_total = true;
-
-                                // Make boss walk to a random spot
-                                //bossWalk.MoveToRandomPosition();
-
                             }
                         }
                         yield return new WaitForSeconds(delaytime);
@@ -310,7 +283,8 @@ public class InteractableButtonsCaller : MonoBehaviour
                     audioSource = sfxLetsGoAgain.GetComponent<AudioSource>();
                     audioSource.Play();
                     yield return new WaitForSeconds(delaytime * 3);
-
+                    
+                    // Reset this back to false for the next iteration
                     _is_total = false;
                 }
 
@@ -326,7 +300,7 @@ public class InteractableButtonsCaller : MonoBehaviour
     {
         bossWalk.TypistTyping();
 
-        // Find a GameObject named "HandleRig" (the main handle) in the scene & pull the handle
+        // Find a GameObject named "HandleRig" in the scene & pull the handle
         GameObject handleRig = GameObject.Find("HandleRig");
 
         HandleManager script = handleRig.GetComponent<HandleManager>();
@@ -343,7 +317,7 @@ public class InteractableButtonsCaller : MonoBehaviour
 
     IEnumerator ReleaseTheHandle()
     {
-        // Find a GameObject named "HandleRig" (the main handle) in the scene & release the handle
+        // Find a GameObject named "HandleRig" in the scene & release the handle
         GameObject handleRig = GameObject.Find("HandleRig");
 
         HandleManager script = handleRig.GetComponent<HandleManager>();

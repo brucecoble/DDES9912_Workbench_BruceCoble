@@ -97,26 +97,5 @@ public class ButtonManager : MonoBehaviour
         
     }
 
-    /*
-    public void ResetButton()
-    {
-        if (buttonPressed)
-        {
-            Debug.Log("Resetting button to original position");
-
-            // Move button back up to original not-pressed position
-            transform.localPosition = new Vector3(localPositionX, localPositionY, localPositionZ);
-            // Change state of button back to not-pressed
-            buttonPressed = false;
-            // Set the numerical value of the button to be the value to zero
-            finalValue = 0;
-            // Set the action value of the button to be not active
-            finalAction = "Inactive";
-            // Set the final Button Pressed value to be the value specified in the object's inspector window
-            finalPressedValue = buttonPressed;
-
-        }
-    }
-    */
 }
 
